@@ -1,0 +1,15 @@
+C:\Users\Djimmy\RiderProjects\RwSavEditor\RwSavEditor\bin\Debug\net7.0\RwSavEditor.exe
+C:\Users\Djimmy\RiderProjects\RwSavEditor\RwSavEditor\bin\Debug\net7.0\RwSavEditor.deps.json
+C:\Users\Djimmy\RiderProjects\RwSavEditor\RwSavEditor\bin\Debug\net7.0\RwSavEditor.runtimeconfig.json
+C:\Users\Djimmy\RiderProjects\RwSavEditor\RwSavEditor\bin\Debug\net7.0\RwSavEditor.dll
+C:\Users\Djimmy\RiderProjects\RwSavEditor\RwSavEditor\bin\Debug\net7.0\RwSavEditor.pdb
+C:\Users\Djimmy\RiderProjects\RwSavEditor\RwSavEditor\obj\Debug\net7.0\RwSavEditor.csproj.AssemblyReference.cache
+C:\Users\Djimmy\RiderProjects\RwSavEditor\RwSavEditor\obj\Debug\net7.0\RwSavEditor.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Djimmy\RiderProjects\RwSavEditor\RwSavEditor\obj\Debug\net7.0\RwSavEditor.AssemblyInfoInputs.cache
+C:\Users\Djimmy\RiderProjects\RwSavEditor\RwSavEditor\obj\Debug\net7.0\RwSavEditor.AssemblyInfo.cs
+C:\Users\Djimmy\RiderProjects\RwSavEditor\RwSavEditor\obj\Debug\net7.0\RwSavEditor.csproj.CoreCompileInputs.cache
+C:\Users\Djimmy\RiderProjects\RwSavEditor\RwSavEditor\obj\Debug\net7.0\RwSavEditor.dll
+C:\Users\Djimmy\RiderProjects\RwSavEditor\RwSavEditor\obj\Debug\net7.0\refint\RwSavEditor.dll
+C:\Users\Djimmy\RiderProjects\RwSavEditor\RwSavEditor\obj\Debug\net7.0\RwSavEditor.pdb
+C:\Users\Djimmy\RiderProjects\RwSavEditor\RwSavEditor\obj\Debug\net7.0\RwSavEditor.genruntimeconfig.cache
+C:\Users\Djimmy\RiderProjects\RwSavEditor\RwSavEditor\obj\Debug\net7.0\ref\RwSavEditor.dll
