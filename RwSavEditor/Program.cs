@@ -1,42 +1,107 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 
 namespace RwSavEditor
 {
     class Program
     {
-        static char chosenValue;
-        public static void Main(string[] args)
+        private static string filePath;
+        private static string fileContent;
+        
+        private static char chosenValue;
+        private static string pattern = "([A-Z]{2}_[A-Z][0-9]{2})";
+        
+        public static void Main()
         {
-            String characterChoice = askChar();
-            String statsToFind = askStat();
-            String txt = File.ReadAllText("C:\\Users\\domicile\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav");
+            #region GetPath
+            Console.Write("Provide path to your \"sav\" file (example : C:\\Users\\Example\\Desktop\\sav) : ");
+            filePath = Console.ReadLine();
             
+            if (filePath == "d" || filePath == "debug")
+            {
+                filePath = "C:\\Users\\Djimmy\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav";
+            }
             
-            int valueReturned = GetIntValue(txt, characterChoice, statsToFind);
-            Console.WriteLine("Initial Value : " + valueReturned);
-            int newValue = askNewValue();
+            if (!File.Exists(filePath))
+            {
+                Console.WriteLine("File not found !");
+                Main();
+            }
             
-            EditIntValue(txt, characterChoice, statsToFind, newValue);
+            fileContent = File.ReadAllText(filePath);
+            #endregion
+            
+            string characterChoice = AskChar();
+            String statsToFind = AskStat();
+            String valueReturned;
+            String newValue;
+
+            if (!statsToFind.Contains("DEN"))
+            {
+                valueReturned = GetIntValue(characterChoice, statsToFind);
+                Console.WriteLine("Initial Value : " + valueReturned);
+                newValue = AskNewValueInt(statsToFind);
+                EditIntValue(characterChoice, statsToFind, newValue);
+            }
+            else
+            {
+                valueReturned = GetStrValue(characterChoice, statsToFind);
+                Console.WriteLine("Initial Value : " + valueReturned);
+                newValue = AskNewValueStr();
+                EditStrValue(characterChoice, statsToFind, newValue);
+            }
             Console.WriteLine("Value changed to : " + newValue + " with success !");
             Console.Read();
         }
 
-        public static int askNewValue()
+        private static String AskNewValueInt(string stat)
         {
             String newValue;
-            int newValueInt;
 
-            Console.Write("Enter the new value : ");
+            Console.Write("\nEnter the new value : ");
             newValue = Console.ReadLine();
-            if (!int.TryParse(newValue, out newValueInt))
+            //Check if the input is a number
+            if (!int.TryParse(newValue, out int num))
             {
-                Console.WriteLine("Enter a number !\n");
-                askNewValue();
+                Console.WriteLine("Enter a number !");
+                AskNewValueInt(stat);
             }
-            return newValueInt;
+            
+            if (num < 0)
+            {
+                Console.WriteLine("Number must be positive !");
+                AskNewValueInt(stat);
+            }
+
+            if (stat == ";REINFORCEDKARMA")
+            {
+                if (num != 0 && num != 1)
+                {
+                    Console.WriteLine("Number must be either 0 or 1 !");
+                    AskNewValueInt(stat);
+                }
+            }
+            return newValue;
+        }
+
+        private static String AskNewValueStr()
+        {
+            String newValue;
+            
+            Console.Write("\nEnter the new value (/!\\make sure that it is a valid RW Room /!\\) : ");
+            newValue = Console.ReadLine();
+            newValue = newValue.ToUpper();
+            Regex regex = new Regex(pattern);
+            Match match = regex.Match(newValue);
+            if (!match.Success)
+            {
+                Console.WriteLine("Enter a valid room (example : SU_S01) !");
+                AskNewValueStr();
+            }
+            return newValue;
         }
         
-        public static String askStat()
+        private static String AskStat()
         {
             String statsToFind;
            
@@ -44,32 +109,47 @@ namespace RwSavEditor
                           "\n\n1 = Number Of Cycle passed" +
                           "\n2 = Number Of Food Eat" +
                           "\n3 = Food Cap" +
+                          "\n4 = Position of current den" +
+                          "\n5 = Karma Level" +
+                          "\n6 = Karma CAP" +
+                          "\n7 = Reinforce Karma" +
                           "\n>");
             statsToFind = Console.ReadLine();
             char.TryParse(statsToFind, out chosenValue);
-            
-            if (chosenValue == '1')
+
+            switch (statsToFind) 
             {
-                statsToFind = "CYCLENUM";
-            }
-            else if (chosenValue == '2')
-            {
-                statsToFind = "FOOD";
-            }
-            else if (chosenValue == '3')
-            {
-                statsToFind = "TOTFOOD";
-            }
-            else
-            {
-                Console.WriteLine("Wrong input !\n");
-                askStat();
+                case "1":
+                    statsToFind = ";CYCLENUM";
+                    break;
+                case "2":
+                    statsToFind = "FOOD";
+                    break;
+                case "3":
+                    statsToFind = ";TOTFOOD";
+                    break;
+                case "4":
+                    statsToFind = ";DENPOS";
+                    break;
+                case "5":
+                    statsToFind = ";KARMA";
+                    break;
+                case "6":
+                    statsToFind = ";KARMACAP";
+                    break;
+                case "7":
+                    statsToFind = ";REINFORCEDKARMA";
+                    break;
+                default:
+                    Console.WriteLine("Wrong input !\n");
+                    AskStat();
+                    break;
             }
 
             return statsToFind;
         }
-
-        public static String askChar()
+        
+        private static String AskChar()
         {
             String characterChoiceSTR;
             
@@ -85,59 +165,78 @@ namespace RwSavEditor
             else
             {
                 Console.WriteLine("Wrong input !\n");
-                askChar();
+                AskChar();
             }
 
             return characterChoiceSTR;
         }
-
-        public static int GetIntValue(String txt, String character, String valueToFind)
+        
+        private static String GetStrValue(String character, String valueToFind)
         {
-            int returnValue;
-            int start = txt.IndexOf(character);
-            // Find the first "CYCLENUM" after the start position and get the last char position
-            int end = txt.IndexOf(valueToFind, start) + valueToFind.Length;
-            // Find the first number after "CYCLENUM"
-            StringBuilder numCycle = new StringBuilder();
-            for (int i=end; i<txt.Length; i++)
-            {
-                if (char.IsDigit(txt[i]))
-                {
-                    for (int j=i; j<txt.Length; j++)
-                    {
-                        if (char.IsDigit(txt[j]))
-                        {
-                            numCycle.Append(txt[j]);
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                    break;
-                }
-            }
-            String numCycleStr = numCycle.ToString();
-            int.TryParse(numCycleStr, out returnValue);
-            return returnValue;
+            int start = fileContent.IndexOf(character);
+            int end = fileContent.IndexOf(valueToFind, start) + valueToFind.Length;
+            Regex regex = new Regex(pattern);
+            Match match = regex.Match(fileContent, end);
+            
+            return match.Groups[1].Value;
         }
 
-        public static void EditIntValue(String txt, String character, String valueToFind, int newValue)
+        private static String GetIntValue(String character, String valueToFind)
         {
-            int start = txt.IndexOf(character);
-            // Find the first "CYCLENUM" after the start position and get the last char position
-            int end = txt.IndexOf(valueToFind, start) + valueToFind.Length;
+            String returnValue;
+            int start = fileContent.IndexOf(character);
+            int end = fileContent.IndexOf(valueToFind, start) + valueToFind.Length;
             // Find the first number after "CYCLENUM"
             StringBuilder numCycle = new StringBuilder();
-            for (int i=end; i<txt.Length; i++)
+            for (int i=end; i<fileContent.Length; i++)
             {
-                if (char.IsDigit(txt[i]))
+                if (char.IsDigit(fileContent[i]))
                 {
-                    for (int j=i; j<txt.Length; j++)
+                    for (int j=i; j<fileContent.Length; j++)
                     {
-                        if (char.IsDigit(txt[j]))
+                        if (char.IsDigit(fileContent[j]))
                         {
-                            numCycle.Append(txt[j]);
+                            numCycle.Append(fileContent[j]);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+            returnValue = numCycle.ToString();
+            return returnValue;
+        }
+        
+        private static void EditStrValue(String character, String valueToFind, String newValue)
+        {
+            int start = fileContent.IndexOf(character);
+            int end = fileContent.IndexOf(valueToFind, start) + valueToFind.Length;
+            Regex regex = new Regex(pattern);
+            Match match = regex.Match(fileContent, end);
+            string replaced = fileContent.Substring(0, match.Index) + newValue + fileContent.Substring(match.Index + match.Length);
+            
+            File.WriteAllText(filePath, replaced);
+        }
+
+        private static void EditIntValue(String character, String valueToFind, String newValue)
+        {
+            int start = fileContent.IndexOf(character);
+            // Find the first "CYCLENUM" after the start position and get the last char position
+            int end = fileContent.IndexOf(valueToFind, start) + valueToFind.Length;
+            // Find the first number after "CYCLENUM"
+            StringBuilder numCycle = new StringBuilder();
+            for (int i=end; i<fileContent.Length; i++)
+            {
+                if (char.IsDigit(fileContent[i]))
+                {
+                    for (int j=i; j<fileContent.Length; j++)
+                    {
+                        if (char.IsDigit(fileContent[j]))
+                        {
+                            numCycle.Append(fileContent[j]);
                         }
                         else
                         {
@@ -148,10 +247,10 @@ namespace RwSavEditor
                 }
             }
             String numCycleStr = numCycle.ToString();
-            int index = txt.IndexOf(numCycleStr, end);
-            txt = txt.Remove(index, numCycleStr.Length);
-            txt = txt.Insert(index, newValue.ToString());
-            File.WriteAllText("C:\\Users\\Domicile\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav", txt);
+            int index = fileContent.IndexOf(numCycleStr, end);
+            string replaced = fileContent.Substring(0, index) + newValue + fileContent.Substring(index + numCycleStr.Length);
+            // Get file by path
+            File.WriteAllText(filePath, replaced);
         }
     }
 }
