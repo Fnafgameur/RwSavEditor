@@ -31,6 +31,17 @@ namespace RwSavEditor
             fileContent = File.ReadAllText(filePath);
             #endregion
             
+            /*
+             * TODO :
+             * -Créer fichier save "original" pour pouvoir le restaurer en cas de problème
+             * -Ajouter stats manquantes
+             * -Ajouter Survivor & Hunter
+             * -Application sur l'esthétique (formulations des phrases, retour à la ligne, etc...)
+             * -Revérifier le code et tester afin de trouver des bugs
+             *
+             * -Opti le code
+             */
+            
             string characterChoice = AskChar();
             String statsToFind = AskStat();
             String valueReturned;
