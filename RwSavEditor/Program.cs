@@ -4,27 +4,42 @@ namespace RwSavEditor
 {
     class Program
     {
+        static char chosenValue;
         public static void Main(string[] args)
         {
-            String txt = File.ReadAllText("C:\\Users\\Djimmy\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav");
-            EditIntValue(txt, "Yellow&lt;svA&gt;SEED&lt;svB&gt;", "CYCLENUM", 50000);
+            String characterChoice = askChar();
+            String statsToFind = askStat();
+            String txt = File.ReadAllText("C:\\Users\\domicile\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav");
             
-            return;
-            String characterChoiceSTR;
-            char chosenValue;
-
-            String statsToFind;
-
-            Console.Write("Enter the character you want to edit:\n\n1 = Monk" +
-                          "\n>");
-            characterChoiceSTR = Console.ReadLine();
-            char.TryParse(characterChoiceSTR, out chosenValue);
             
-            if (chosenValue == '1')
+            int valueReturned = GetIntValue(txt, characterChoice, statsToFind);
+            Console.WriteLine("Initial Value : " + valueReturned);
+            int newValue = askNewValue();
+            
+            EditIntValue(txt, characterChoice, statsToFind, newValue);
+            Console.WriteLine("Value changed to : " + newValue + " with success !");
+            Console.Read();
+        }
+
+        public static int askNewValue()
+        {
+            String newValue;
+            int newValueInt;
+
+            Console.Write("Enter the new value : ");
+            newValue = Console.ReadLine();
+            if (!int.TryParse(newValue, out newValueInt))
             {
-                characterChoiceSTR = "Yellow&lt;svA&gt;SEED&lt;svB&gt;";
+                Console.WriteLine("Enter a number !\n");
+                askNewValue();
             }
-            
+            return newValueInt;
+        }
+        
+        public static String askStat()
+        {
+            String statsToFind;
+           
             Console.Write("Enter the stat you want to edit:" +
                           "\n\n1 = Number Of Cycle passed" +
                           "\n2 = Number Of Food Eat" +
@@ -45,16 +60,35 @@ namespace RwSavEditor
             {
                 statsToFind = "TOTFOOD";
             }
+            else
+            {
+                Console.WriteLine("Wrong input !\n");
+                askStat();
+            }
+
+            return statsToFind;
+        }
+
+        public static String askChar()
+        {
+            String characterChoiceSTR;
             
-            //String txt = File.ReadAllText("C:\\Users\\Djimmy\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav");
-            int valueReturned = GetIntValue(txt, characterChoiceSTR, statsToFind);
-            Console.WriteLine("Value : " + valueReturned);
+            Console.Write("Enter the character's save you want to edit:\n\n1 = Monk" +
+                          "\n>");
+            characterChoiceSTR = Console.ReadLine();
+            char.TryParse(characterChoiceSTR, out chosenValue);
             
-            
-            
-            
-            
-            Console.Read();
+            if (chosenValue == '1')
+            {
+                characterChoiceSTR = "Yellow&lt;svA&gt;SEED&lt;svB&gt;";
+            }
+            else
+            {
+                Console.WriteLine("Wrong input !\n");
+                askChar();
+            }
+
+            return characterChoiceSTR;
         }
 
         public static int GetIntValue(String txt, String character, String valueToFind)
@@ -117,9 +151,7 @@ namespace RwSavEditor
             int index = txt.IndexOf(numCycleStr, end);
             txt = txt.Remove(index, numCycleStr.Length);
             txt = txt.Insert(index, newValue.ToString());
-            File.WriteAllText("C:\\Users\\Djimmy\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav", txt);
-            
-            Console.WriteLine(txt);
+            File.WriteAllText("C:\\Users\\Domicile\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav", txt);
         }
     }
 }
