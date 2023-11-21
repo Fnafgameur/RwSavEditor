@@ -1,42 +1,85 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 
 namespace RwSavEditor
 {
     class Program
     {
-        static char chosenValue;
+        private static char chosenValue;
+        private static string pattern = @"([A-Z]{2}_[A-Z][0-9]{2})";
         public static void Main(string[] args)
         {
-            String characterChoice = askChar();
-            String statsToFind = askStat();
-            String txt = File.ReadAllText("C:\\Users\\domicile\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav");
+            AskNewValueStr();
+            
+            return;
+            
+            string pattern = ".*?([A-Z]{2}_[A-Z][0-9]{2}).*";
+            
+            string input = "DENPOS&lt;svB&gt;SU_S01&lt;svA&gt;"; // Ta chaîne d'entrée
+            
+            Regex regex = new Regex(pattern);
+            
+            Match match = regex.Match(input);
+
+            if (match.Success)
+            {
+                Console.WriteLine("Motif trouvé : " + match.Groups[1].Value);
+            }
+            else
+            {
+                Console.WriteLine("Aucun motif trouvé.");
+            }
+            
+            return;
             
             
-            int valueReturned = GetIntValue(txt, characterChoice, statsToFind);
-            Console.WriteLine("Initial Value : " + valueReturned);
-            int newValue = askNewValue();
             
-            EditIntValue(txt, characterChoice, statsToFind, newValue);
+            
+            String characterChoice = AskChar();
+            String statsToFind = AskStat();
+            //String txt = File.ReadAllText("C:\\Users\\domicile\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav");
+            
+            
+            //int valueReturned = GetIntValue(txt, characterChoice, statsToFind);
+            //Console.WriteLine("Initial Value : " + valueReturned);
+            String newValue = AskNewValueInt();
+            
+            //EditIntValue(txt, characterChoice, statsToFind, newValue);
             Console.WriteLine("Value changed to : " + newValue + " with success !");
             Console.Read();
         }
 
-        public static int askNewValue()
+        private static String AskNewValueInt()
         {
             String newValue;
-            int newValueInt;
 
-            Console.Write("Enter the new value : ");
+            Console.Write("\nEnter the new value : ");
             newValue = Console.ReadLine();
-            if (!int.TryParse(newValue, out newValueInt))
+            if (!int.TryParse(newValue, out int newValueInt))
             {
-                Console.WriteLine("Enter a number !\n");
-                askNewValue();
+                Console.WriteLine("Enter a number !");
+                AskNewValueInt();
             }
-            return newValueInt;
+            return newValue;
+        }
+
+        private static String AskNewValueStr()
+        {
+            String newValue;
+
+            Console.Write("\nEnter the new value : ");
+            newValue = Console.ReadLine();
+            Regex regex = new Regex(pattern);
+            Match match = regex.Match(newValue);
+            if (!match.Success)
+            {
+                Console.WriteLine("Enter a valid room (example : SU_S01) !");
+                AskNewValueStr();
+            }
+            return newValue;
         }
         
-        public static String askStat()
+        private static String AskStat()
         {
             String statsToFind;
            
@@ -44,6 +87,8 @@ namespace RwSavEditor
                           "\n\n1 = Number Of Cycle passed" +
                           "\n2 = Number Of Food Eat" +
                           "\n3 = Food Cap" +
+                          "\n4 = Karma Level" +
+                          "\n5 = Karma CAP" +
                           "\n>");
             statsToFind = Console.ReadLine();
             char.TryParse(statsToFind, out chosenValue);
@@ -63,13 +108,13 @@ namespace RwSavEditor
             else
             {
                 Console.WriteLine("Wrong input !\n");
-                askStat();
+                AskStat();
             }
 
             return statsToFind;
         }
-
-        public static String askChar()
+        
+        private static String AskChar()
         {
             String characterChoiceSTR;
             
@@ -85,13 +130,13 @@ namespace RwSavEditor
             else
             {
                 Console.WriteLine("Wrong input !\n");
-                askChar();
+                AskChar();
             }
 
             return characterChoiceSTR;
         }
 
-        public static int GetIntValue(String txt, String character, String valueToFind)
+        private static int GetIntValue(String txt, String character, String valueToFind)
         {
             int returnValue;
             int start = txt.IndexOf(character);
@@ -121,8 +166,22 @@ namespace RwSavEditor
             int.TryParse(numCycleStr, out returnValue);
             return returnValue;
         }
+        
+        private static void EditStrValue(String txt, String character, String valueToFind, String newValue)
+        {
+            int start = txt.IndexOf(character);
+            int end = txt.IndexOf(valueToFind, start) + valueToFind.Length;
+            Regex regex = new Regex(pattern);
+            Match match = regex.Match(txt, end);
+            string replaced = txt.Substring(0, match.Index) + newValue + txt.Substring(match.Index + match.Length);
+            
+            File.WriteAllText("C:\\Users\\Domicile\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav", replaced);
+            
+            
+            
+        }
 
-        public static void EditIntValue(String txt, String character, String valueToFind, int newValue)
+        private static void EditIntValue(String txt, String character, String valueToFind, String newValue)
         {
             int start = txt.IndexOf(character);
             // Find the first "CYCLENUM" after the start position and get the last char position
@@ -150,7 +209,7 @@ namespace RwSavEditor
             String numCycleStr = numCycle.ToString();
             int index = txt.IndexOf(numCycleStr, end);
             txt = txt.Remove(index, numCycleStr.Length);
-            txt = txt.Insert(index, newValue.ToString());
+            txt = txt.Insert(index, newValue);
             File.WriteAllText("C:\\Users\\Domicile\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav", txt);
         }
     }
