@@ -14,12 +14,12 @@ namespace RwSavEditor
         public static void Main()
         {
             #region GetPath
-            Console.Write("Provide path to your \"sav\" file (example : C:\\Users\\Example\\Desktop\\sav) : ");
+            Console.Write("Provide path to your \"sav\" file (example : C:/Users/Example/Desktop/sav) : ");
             filePath = Console.ReadLine();
             
             if (filePath == "d" || filePath == "debug")
             {
-                filePath = "C:\\Users\\Djimmy\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav";
+                filePath = "C:\\Users\\domicile\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav";
             }
             
             if (!File.Exists(filePath))
@@ -34,8 +34,8 @@ namespace RwSavEditor
             /*
              * TODO :
              * -Créer fichier save "original" pour pouvoir le restaurer en cas de problème
-             * -Ajouter stats manquantes
-             * -Ajouter Survivor & Hunter
+             * -Ajouter stats manquantes ~ (tester surv, deaths, abandon)
+             * -Ajouter Survivor & Hunter 1.5/2 (tester pour hunter)
              * -Application sur l'esthétique (formulations des phrases, retour à la ligne, etc...)
              * -Revérifier le code et tester afin de trouver des bugs
              *
@@ -51,7 +51,26 @@ namespace RwSavEditor
             {
                 valueReturned = GetIntValue(characterChoice, statsToFind);
                 Console.WriteLine("Initial Value : " + valueReturned);
+                if (statsToFind == ";KARMA")
+                {
+                    Console.WriteLine("Karma CAP : " + GetIntValue(characterChoice, ";KARMACAP"));
+                }
                 newValue = AskNewValueInt(statsToFind);
+                
+                if (statsToFind == ";KARMA")
+                {
+                    String karmaCap = GetIntValue(characterChoice, ";KARMACAP");
+                    if (int.Parse(newValue) > int.Parse(karmaCap))
+                    {
+                        Console.WriteLine("Karma level can't be higher than Karma CAP !");
+                        AskNewValueInt(statsToFind);
+                    }
+                    if (int.Parse(newValue) > 9)
+                    {
+                        Console.WriteLine("Karma level can't be higher than 9 !");
+                        AskNewValueInt(statsToFind);
+                    }
+                }
                 EditIntValue(characterChoice, statsToFind, newValue);
             }
             else
@@ -117,35 +136,46 @@ namespace RwSavEditor
             String statsToFind;
            
             Console.Write("Enter the stat you want to edit:" +
-                          "\n\n1 = Number Of Cycle passed" +
-                          "\n2 = Number Of Food Eat" +
-                          "\n3 = Food Cap" +
-                          "\n4 = Position of current den" +
-                          "\n5 = Karma Level" +
-                          "\n6 = Karma CAP" +
-                          "\n7 = Reinforce Karma" +
+                          "\n\n0 = Number Of Cycle passed" +
+                          "\n1 = Number Of Deaths" +
+                          "\n2 = Number Of Cycle survived" +
+                          "\n3 = Number Of Cycle abandonned" +
+                          "\n4 = Number of food" +
+                          "\n5 = Position of current den" +
+                          "\n6 = Karma Level" +
+                          "\n7 = Karma CAP" +
+                          "\n8 = Reinforce Karma" +
                           "\n>");
             statsToFind = Console.ReadLine();
             char.TryParse(statsToFind, out chosenValue);
 
             switch (statsToFind) 
             {
-                case "1":
+                case "0":
                     statsToFind = ";CYCLENUM";
                     break;
+                case "1":
+                    statsToFind = ";DEATHS";
+                    break;
                 case "2":
-                    statsToFind = "FOOD";
+                    statsToFind = ";SURVIVES";
                     break;
                 case "3":
-                    statsToFind = ";DENPOS";
+                    statsToFind = ";QUITS";
                     break;
                 case "4":
-                    statsToFind = ";KARMA";
+                    statsToFind = "FOOD";
                     break;
                 case "5":
-                    statsToFind = ";KARMACAP";
+                    statsToFind = ";DENPOS";
                     break;
                 case "6":
+                    statsToFind = ";KARMA";
+                    break;
+                case "7":
+                    statsToFind = ";KARMACAP";
+                    break;
+                case "8":
                     statsToFind = ";REINFORCEDKARMA";
                     break;
                 default:
@@ -161,7 +191,10 @@ namespace RwSavEditor
         {
             String characterChoiceSTR;
             
-            Console.Write("Enter the character's save you want to edit:\n\n1 = Monk" +
+            Console.Write("Enter the character's save you want to edit:\n" +
+                          "\n1 = Monk" +
+                          "\n2 = Survivor" +
+                          "\n3 = Hunter" +
                           "\n>");
             characterChoiceSTR = Console.ReadLine();
             char.TryParse(characterChoiceSTR, out chosenValue);
@@ -170,9 +203,23 @@ namespace RwSavEditor
             {
                 characterChoiceSTR = "Yellow&lt;svA&gt;SEED&lt;svB&gt;";
             }
+            else if (chosenValue == '2')
+            {
+                characterChoiceSTR = "White&lt;svA&gt;SEED&lt;svB&gt;";
+            }
+            else if (chosenValue == '3')
+            {
+                characterChoiceSTR = "Red&lt;svA&gt;SEED&lt;svB&gt;";
+            }
             else
             {
                 Console.WriteLine("Wrong input !\n");
+                AskChar();
+            }
+            
+            if (fileContent.IndexOf(characterChoiceSTR) == -1)
+            {
+                Console.WriteLine("Character not found !\n");
                 AskChar();
             }
 
