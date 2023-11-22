@@ -137,18 +137,15 @@ namespace RwSavEditor
                     statsToFind = "FOOD";
                     break;
                 case "3":
-                    statsToFind = ";TOTFOOD";
-                    break;
-                case "4":
                     statsToFind = ";DENPOS";
                     break;
-                case "5":
+                case "4":
                     statsToFind = ";KARMA";
                     break;
-                case "6":
+                case "5":
                     statsToFind = ";KARMACAP";
                     break;
-                case "7":
+                case "6":
                     statsToFind = ";REINFORCEDKARMA";
                     break;
                 default:
