@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace RwSavEditor
 {
+    
     class Program
     {
         private static string filePath;
@@ -11,10 +12,16 @@ namespace RwSavEditor
         
         private static char chosenValue;
         private static string pattern = "([A-Z]{2}_[A-Z][0-9]{2})";
-        private static bool hasPath = false;
+        private static bool hasPath;
         
         public static void Main()
         {
+            string characterChoice;
+            string statsToFind;
+            string valueReturned;
+            string newValue;
+            string selectedChoice;
+            
             if (!hasPath)
             {
                 Console.Write("Provide path to your \"sav\" file (example : C:/Users/Example/Desktop/sav) : ");
@@ -38,7 +45,8 @@ namespace RwSavEditor
 
             /*
              * TODO :
-             * -Créer fichier save "original" pour pouvoir le restaurer en cas de problème
+             * -Créer fichier save "original" pour pouvoir le restaurer en cas de problème 🟠
+             * ---Faire vérif si orig file existe, demander si on l'écrase ou non
              * -Ajouter stats manquantes 🟢
              * -Ajouter Survivor & Hunter 🟢
              * -Application sur l'esthétique (formulations des phrases, retour à la ligne, etc...)
@@ -47,10 +55,8 @@ namespace RwSavEditor
              * -Opti le code
              */
             
-            string characterChoice = AskChar();
-            String statsToFind = AskStat();
-            String valueReturned;
-            String newValue;
+            characterChoice = AskChar();
+            statsToFind = AskStat();
 
             if (!statsToFind.Contains("DEN"))
             {
@@ -60,7 +66,7 @@ namespace RwSavEditor
                 {
                     Console.WriteLine("Karma CAP : " + GetIntValue(characterChoice, ";KARMACAP"));
                 }
-                newValue = AskNewValueInt(statsToFind);
+                newValue = AskNewValueInt(characterChoice, statsToFind);
 
                 if (statsToFind == ";KARMA")
                 {
@@ -68,7 +74,7 @@ namespace RwSavEditor
                     if (int.Parse(newValue) > 9)
                     {
                         Console.WriteLine("Karma level can't be higher than 9 !");
-                        newValue = AskNewValueInt(statsToFind);
+                        newValue = AskNewValueInt(characterChoice, statsToFind);
                     }
 
                     if (int.Parse(newValue) > int.Parse(karmaCap))
@@ -77,11 +83,11 @@ namespace RwSavEditor
 
                         Console.WriteLine("\nKarma level can't be higher than Karma CAP !" +
                                           "\nWould you like to set the Karma CAP to the same value as the Karma level ?\n");
-                        Console.Write("Y/N : ");
+                        Console.Write("Y/n : ");
                         choice = Console.ReadLine();
                         choice = choice.ToUpper();
                         char.TryParse(choice, out chosenValue);
-                        if (chosenValue == 'Y')
+                        if (chosenValue == 'Y' || chosenValue == '\0' || chosenValue == ' ')
                         {
                             Console.WriteLine(EditIntValue(characterChoice, ";KARMACAP", newValue));
                         }
@@ -103,11 +109,25 @@ namespace RwSavEditor
                 EditStrValue(characterChoice, statsToFind, newValue);
             }
             Console.WriteLine("Value changed to : " + newValue + " with success ! ");
-            Console.Read();
+            Console.WriteLine("\nWould you like to edit another stat ?\n");
+            Console.Write("Y/n : ");
+            selectedChoice = Console.ReadLine();
+            selectedChoice = selectedChoice.ToUpper();
+            char.TryParse(selectedChoice, out chosenValue);
+            if (chosenValue == 'Y' || chosenValue == '\0' || chosenValue == ' ')
+            {
+                Console.Clear();
+                Main();
+            }
+            else
+            {
+                Console.WriteLine("Goodbye !");
+                Environment.Exit(0);
+            }
             Main();
         }
 
-        private static String AskNewValueInt(string stat)
+        private static String AskNewValueInt(string character, string stat)
         {
             String newValue;
 
@@ -124,22 +144,19 @@ namespace RwSavEditor
             if (!int.TryParse(newValue, out int num))
             {
                 Console.WriteLine("Enter a number !");
-                AskNewValueInt(stat);
+                return AskNewValueInt(character, stat);
             }
             
-            if (num < 0)
+            if (num < 0 && stat != ";CYCLENUM")
             {
                 Console.WriteLine("Number must be positive !");
-                AskNewValueInt(stat);
+                return AskNewValueInt(character, stat);
             }
 
-            if (stat == ";REINFORCEDKARMA")
+            if (stat == ";REINFORCEDKARMA" && num != 0 && num != 1)
             {
-                if (num != 0 && num != 1)
-                {
-                    Console.WriteLine("Number must be either 0 or 1 !");
-                    AskNewValueInt(stat);
-                }
+                Console.WriteLine("Number must be either 0 or 1 !");
+                return AskNewValueInt(character, stat);
             }
             return newValue;
         }
@@ -216,8 +233,7 @@ namespace RwSavEditor
                     break;
                 default:
                     Console.WriteLine("Wrong input !\n");
-                    AskStat();
-                    break;
+                    return AskStat();
             }
 
             return statsToFind;
@@ -226,7 +242,7 @@ namespace RwSavEditor
         private static String AskChar()
         {
             fileContent = File.ReadAllText(filePath);
-            String characterChoiceSTR;
+            String characterChoiceStr;
             
             Console.Write("Enter the character's save you want to edit:\n" +
                           "\n1 = Monk" +
@@ -234,19 +250,19 @@ namespace RwSavEditor
                           "\n3 = Hunter" +
                           "\nR = Restart the program" +
                           "\n>");
-            characterChoiceSTR = Console.ReadLine();
-            characterChoiceSTR = characterChoiceSTR.ToUpper();
-            char.TryParse(characterChoiceSTR, out chosenValue);
+            characterChoiceStr = Console.ReadLine();
+            characterChoiceStr = characterChoiceStr.ToUpper();
+            char.TryParse(characterChoiceStr, out chosenValue);
             switch (chosenValue)
             {
                 case '1':
-                    characterChoiceSTR = "Yellow&lt;svA&gt;SEED&lt;svB&gt;";
+                    characterChoiceStr = "Yellow&lt;svA&gt;SEED&lt;svB&gt;";
                     break;
                 case '2':
-                    characterChoiceSTR = "White&lt;svA&gt;SEED&lt;svB&gt;";
+                    characterChoiceStr = "White&lt;svA&gt;SEED&lt;svB&gt;";
                     break;
                 case '3':
-                    characterChoiceSTR = "Red&lt;svA&gt;SEED&lt;svB&gt;";
+                    characterChoiceStr = "Red&lt;svA&gt;SEED&lt;svB&gt;";
                     break;
                 case 'R':
                     hasPath = false;
@@ -255,17 +271,16 @@ namespace RwSavEditor
                     break;
                 default:
                     Console.WriteLine("Wrong input !\n");
-                    AskChar();
-                    break;
+                    return AskChar();
             }
             
-            if (fileContent.IndexOf(characterChoiceSTR) == -1)
+            if (fileContent.IndexOf(characterChoiceStr) == -1)
             {
                 Console.WriteLine("Character not found !\n");
                 AskChar();
             }
 
-            return characterChoiceSTR;
+            return characterChoiceStr;
         }
         
         private static String GetStrValue(String character, String valueToFind)
@@ -278,34 +293,43 @@ namespace RwSavEditor
             
             return match.Groups[1].Value;
         }
-
-        private static String GetIntValue(String character, String valueToFind)
+        
+        private static string GetIntValue(string character, string valueToFind)
         {
-            fileContent = File.ReadAllText(filePath);
-            String returnValue;
-            int start = fileContent.IndexOf(character);
-            int end = fileContent.IndexOf(valueToFind, start) + valueToFind.Length;
-            // Find the first number after "CYCLENUM"
-            StringBuilder numCycle = new StringBuilder();
-            for (int i=end; i<fileContent.Length; i++)
+            string fileContent = File.ReadAllText(filePath);
+            string returnValue = "";
+            int start;
+            int end;
+            
+            start = fileContent.LastIndexOf(character);
+            if (start != -1)
             {
-                if (char.IsDigit(fileContent[i]))
+                end = fileContent.IndexOf(valueToFind, start) + valueToFind.Length;
+                StringBuilder numCycle = new StringBuilder();
+
+                for (int i = end; i < fileContent.Length; i++)
                 {
-                    for (int j=i; j<fileContent.Length; j++)
+                    if (char.IsDigit(fileContent[i]))
                     {
-                        if (char.IsDigit(fileContent[j]))
+                        for (int j = i; j < fileContent.Length; j++)
                         {
-                            numCycle.Append(fileContent[j]);
+                            if (char.IsDigit(fileContent[j])) 
+                            {
+                                numCycle.Append(fileContent[j]);
+                            }
+                            else
+                            {
+                                break;
+                            }
                         }
-                        else
-                        {
-                            break;
-                        }
+                        returnValue = numCycle.ToString();
+                        break;
                     }
-                    break;
                 }
             }
-            returnValue = numCycle.ToString();
+
+            Console.WriteLine("value : " + returnValue);
+
             return returnValue;
         }
         
@@ -321,51 +345,59 @@ namespace RwSavEditor
             File.WriteAllText(filePath, replaced);
         }
 
-        private static string EditIntValue(String character, String valueToFind, String newValue)
+        private static string EditIntValue(string character, string valueToFind, string newValue)
         {
-            fileContent = File.ReadAllText(filePath);
-            
-            int start = fileContent.IndexOf(character);
-            // Find the first "CYCLENUM" after the start position and get the last char position
-            int end = fileContent.IndexOf(valueToFind, start) + valueToFind.Length;
-            // Find the first number after "CYCLENUM"
-            StringBuilder numCycle = new StringBuilder();
-            for (int i=end; i<fileContent.Length; i++)
+            string fileContent = File.ReadAllText(filePath);
+    
+            int start = fileContent.LastIndexOf(character);
+            if (start != -1)
             {
-                if (char.IsDigit(fileContent[i]))
+                int end = fileContent.IndexOf(valueToFind, start) + valueToFind.Length;
+                StringBuilder number = new StringBuilder();
+        
+                for (int i = end; i < fileContent.Length; i++)
                 {
-                    for (int j=i; j<fileContent.Length; j++)
+                    if (char.IsDigit(fileContent[i]))
                     {
-                        if (char.IsDigit(fileContent[j]))
+                        for (int j = i; j < fileContent.Length; j++)
                         {
-                            numCycle.Append(fileContent[j]);
+                            if (char.IsDigit(fileContent[j]))
+                            {
+                                number.Append(fileContent[j]);
+                            }
+                            else
+                            {
+                                break;
+                            }
                         }
-                        else
-                        {
-                            break;
-                        }
+                        string numCycleStr = number.ToString();
+                        int index = fileContent.IndexOf(numCycleStr, end);
+                        string replaced = fileContent.Substring(0, index) + newValue + fileContent.Substring(index + numCycleStr.Length);
+                
+                        // Write the modified content back to the file
+                        File.WriteAllText(filePath, replaced);
+                        return numCycleStr;
                     }
-                    break;
                 }
             }
-            String numCycleStr = numCycle.ToString();
-            int index = fileContent.IndexOf(numCycleStr, end);
-            string replaced = fileContent.Substring(0, index) + newValue + fileContent.Substring(index + numCycleStr.Length);
-            // Get file by path
-            Console.WriteLine("value : " + newValue);
-            
-            // Write the txt and save
-            File.WriteAllText(filePath, replaced);
-           
-            
-
             return valueToFind;
         }
 
         private static void CreateOrigSave()
         {
+            Console.WriteLine("Creating original save...");
             // Create a new file with the same name as the original + "_orig"
             string origFilePath = folderPath + "\\" + Path.GetFileNameWithoutExtension(filePath) + "_orig" + Path.GetExtension(filePath);
+            // Check if the file already exists
+            if (!File.Exists(origFilePath))
+            {
+                // Create the file
+                File.Create(origFilePath).Dispose();
+                // Copy the content of the original file to the new one
+                File.WriteAllText(origFilePath, File.ReadAllText(filePath));
+            }
+
+            Console.WriteLine("Original save created !");
         }
     }
 }
