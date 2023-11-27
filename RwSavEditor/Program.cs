@@ -31,7 +31,7 @@ namespace RwSavEditor
 
                 if (filePath == "d" || filePath == "debug")
                 {
-                    filePath = "C:\\Users\\Djimmy\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav_hunter";
+                    filePath = "C:\\Users\\domicile\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav_hunter";
                 }
 
                 if (!File.Exists(filePath))
@@ -52,7 +52,7 @@ namespace RwSavEditor
              * -Ajouter Survivor & Hunter 🟢
              * ---Faire en sorte que le nombre de cycle de hunter ne soit pas négatif lors de l'incrémentation de cycles 🟢
              * -Revérifier le code et tester afin de trouver des bugs
-             * ---Retester changer valeur string
+             * ---Retester changer valeur string 🟠
              * -Application sur l'esthétique (formulations des phrases, retour à la ligne, etc...)
              *
              * -Opti le code
@@ -109,9 +109,7 @@ namespace RwSavEditor
                         }
                     }
                 }
-                
                 EditIntValue(characterChoice, statsToFind, newValue);
-                
             }
             else
             {
@@ -317,7 +315,7 @@ namespace RwSavEditor
         private static String GetStrValue(String character, String valueToFind)
         {
             fileContent = File.ReadAllText(filePath);
-            int start = fileContent.IndexOf(character);
+            int start = fileContent.LastIndexOf(character);
             int end = fileContent.IndexOf(valueToFind, start) + valueToFind.Length;
             Regex regex = new Regex(pattern);
             Match match = regex.Match(fileContent, end);
@@ -374,11 +372,12 @@ namespace RwSavEditor
         private static void EditStrValue(String character, String valueToFind, String newValue)
         {
             fileContent = File.ReadAllText(filePath);
-            int start = fileContent.IndexOf(character);
+            int start = fileContent.LastIndexOf(character);
             int end = fileContent.IndexOf(valueToFind, start) + valueToFind.Length;
             Regex regex = new Regex(pattern);
             Match match = regex.Match(fileContent, end);
             string replaced = fileContent.Substring(0, match.Index) + newValue + fileContent.Substring(match.Index + match.Length);
+            displayValue = newValue;
             
             File.WriteAllText(filePath, replaced);
         }
