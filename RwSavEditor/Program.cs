@@ -23,22 +23,30 @@ namespace RwSavEditor
             string newValue;
             string selectedChoice;
             
+            const int MAXKARMA = 9;
+            
             if (!hasPath)
             {
-                Console.Write("Provide path to your \"sav\" file (example : C:/Users/Example/Desktop/sav) : ");
-                filePath = Console.ReadLine();
+                Console.WriteLine("Welcome to the Rain World Save Editor !\n" +
+                                  "This program allows you to edit your save file in order to change stats of your scugs\n" +
+                                  "/!\\ Modded scugs are not supported yet /!\\\n");
                 
-
-                if (filePath == "d" || filePath == "debug")
+                do
                 {
-                    filePath = "C:\\Users\\domicile\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav_hunter";
-                }
+                    Console.Write("Provide path to your \"sav\" file (example : C:/Users/Example/Desktop/sav) : ");
+                    filePath = Console.ReadLine();
 
-                if (!File.Exists(filePath))
-                {
-                    Console.WriteLine("File not found !");
-                    Main();
-                }
+
+                    if (filePath == "d" || filePath == "debug")
+                    {
+                        filePath = "C:\\Users\\Djimmy\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav_gourmand";
+                    }
+
+                    if (!File.Exists(filePath))
+                    {
+                        Console.WriteLine("\nFile not found !\n");
+                    }
+                } while (!File.Exists(filePath));
                 folderPath = Path.GetDirectoryName(filePath);
                 CreateBackupSave();
                 hasPath = true;
@@ -50,10 +58,12 @@ namespace RwSavEditor
              * ---Faire vérif si orig file existe, demander si on l'écrase ou non 🟢
              * -Ajouter stats manquantes 🟢
              * -Ajouter Survivor & Hunter 🟢
+             * -Ajouter DLC scugs (à tester)🟠
+             * -Ajouter modded scugs ?
              * ---Faire en sorte que le nombre de cycle de hunter ne soit pas négatif lors de l'incrémentation de cycles 🟢
              * -Revérifier le code et tester afin de trouver des bugs
              * ---Retester changer valeur string 🟠
-             * -Application sur l'esthétique (formulations des phrases, retour à la ligne, etc...)
+             * -Application sur l'esthétique (formulations des phrases, retour à la ligne, etc...) 🟠
              *
              * -Opti le code
              */
@@ -66,7 +76,7 @@ namespace RwSavEditor
                 GetIntValue(characterChoice, statsToFind);
                 if (statsToFind != ";TOTTIME")
                 {
-                    Console.WriteLine("Current Value : " + displayValue);
+                    Console.WriteLine("\nCurrent Value : " + displayValue);
                 }
                 else
                 {
@@ -82,7 +92,7 @@ namespace RwSavEditor
                 if (statsToFind == ";KARMA")
                 {
                     String karmaCap = GetIntValue(characterChoice, ";KARMACAP");
-                    if (int.Parse(newValue) > 9)
+                    if (int.Parse(newValue) > MAXKARMA)
                     {
                         Console.WriteLine("Karma level can't be higher than 9 !");
                         newValue = AskNewValueInt(characterChoice, statsToFind);
@@ -118,7 +128,7 @@ namespace RwSavEditor
                 newValue = AskNewValueStr();
                 EditStrValue(characterChoice, statsToFind, newValue);
             }
-            Console.WriteLine("Value changed to : " + displayValue + " with success ! ");
+            Console.WriteLine("\nValue changed to : " + displayValue + " with success ! ");
             Console.WriteLine("\nWould you like to edit another stat ?\n");
             Console.Write("Y/n : ");
             selectedChoice = Console.ReadLine();
@@ -213,7 +223,7 @@ namespace RwSavEditor
         {
             String statsToFind;
            
-            Console.Write("Enter the stat you want to edit:" +
+            Console.Write("\nEnter the stat you want to edit:" +
                           "\n\n0 = Number Of Cycle passed" +
                           "\n1 = Number Of Deaths" +
                           "\n2 = Number Of Cycle survived" +
@@ -261,7 +271,7 @@ namespace RwSavEditor
                     statsToFind = ";REINFORCEDKARMA";
                     break;
                 default:
-                    Console.WriteLine("Wrong input !\n");
+                    Console.WriteLine("\nWrong input !");
                     return AskStat();
             }
 
@@ -274,9 +284,14 @@ namespace RwSavEditor
             String characterChoiceStr;
             
             Console.Write("Enter the character's save you want to edit:\n" +
-                          "\n1 = Monk" +
-                          "\n2 = Survivor" +
-                          "\n3 = Hunter" +
+                          "\n0 = Monk" +
+                          "\n1 = Survivor" +
+                          "\n2 = Hunter" +
+                          "\n3 = Gourmand" +
+                          "\n4 = Artificer" +
+                          "\n5 = Rivulet" +
+                          "\n6 = Spearmaster" +
+                          "\n7 = Saint" +
                           "\nR = Restart the program" +
                           "\n>");
             characterChoiceStr = Console.ReadLine();
@@ -284,14 +299,29 @@ namespace RwSavEditor
             char.TryParse(characterChoiceStr, out chosenValue);
             switch (chosenValue)
             {
-                case '1':
+                case '0':
                     characterChoiceStr = "Yellow&lt;svA&gt;SEED&lt;svB&gt;";
                     break;
-                case '2':
+                case '1':
                     characterChoiceStr = "White&lt;svA&gt;SEED&lt;svB&gt;";
                     break;
-                case '3':
+                case '2':
                     characterChoiceStr = "Red&lt;svA&gt;SEED&lt;svB&gt;";
+                    break;
+                case '3':
+                    characterChoiceStr = "Gourmand&lt;svA&gt;SEED&lt;svB&gt;";
+                    break;
+                case '4':
+                    characterChoiceStr = "Artificer&lt;svA&gt;SEED&lt;svB&gt;";
+                    break;
+                case '5':
+                    characterChoiceStr = "Rivulet&lt;svA&gt;SEED&lt;svB&gt;";
+                    break;
+                case '6':
+                    characterChoiceStr = "Spearmaster&lt;svA&gt;SEED&lt;svB&gt;";
+                    break;
+                case '7':
+                    characterChoiceStr = "Saint&lt;svA&gt;SEED&lt;svB&gt;";
                     break;
                 case 'R':
                     hasPath = false;
@@ -299,13 +329,13 @@ namespace RwSavEditor
                     Main();
                     break;
                 default:
-                    Console.WriteLine("Wrong input !\n");
+                    Console.WriteLine("\nWrong input !\n");
                     return AskChar();
             }
             
             if (fileContent.IndexOf(characterChoiceStr) == -1)
             {
-                Console.WriteLine("Character not found !\n");
+                Console.WriteLine("\nCharacter not found ! Have you saved in his campaign ?\n");
                 return AskChar();
             }
 
@@ -434,14 +464,14 @@ namespace RwSavEditor
 
         private static void CreateBackupSave()
         {
-            Console.WriteLine("Creating backup save...");
+            Console.WriteLine("\nCreating backup save...");
             // Create a new file with the same name as the original + "_orig"
             string origFilePath = folderPath + "\\" + Path.GetFileNameWithoutExtension(filePath) + "_backup" + Path.GetExtension(filePath);
             // Check if the file already exists
             if (File.Exists(origFilePath))
             {
                 Console.WriteLine("Backup save already exists in " + folderPath + " !");
-                Console.Write("Would you like to overwrite it ?\ny/N : ");
+                Console.Write("Would you like to overwrite it ?\n\ny/N : ");
                 string choice = Console.ReadLine();
                 choice = choice.ToUpper();
                 char.TryParse(choice, out chosenValue);
@@ -449,11 +479,11 @@ namespace RwSavEditor
                 {
                     // Copy the content of the original file to the new one
                     File.WriteAllText(origFilePath, File.ReadAllText(filePath));
-                    Console.WriteLine("Backup save overwritten !");
+                    Console.WriteLine("\nBackup save overwritten !\n");
                 }
                 else
                 {
-                    Console.WriteLine("Backup save not created !");
+                    Console.WriteLine("\nBackup save not created !\n");
                 }
             }
             else
@@ -462,7 +492,7 @@ namespace RwSavEditor
                 File.Create(origFilePath).Dispose();
                 // Copy the content of the original file to the new one
                 File.WriteAllText(origFilePath, File.ReadAllText(filePath));
-                Console.WriteLine("Backup save created !");
+                Console.WriteLine("\nBackup save created !\n");
             }
         }
     }
