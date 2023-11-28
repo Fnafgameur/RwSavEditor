@@ -5,11 +5,11 @@ namespace RwSavEditor;
 
 class Program
 {
-    private static string filePath;
-    private static string folderPath;
-    private static string fileContent;
+    private static string filePath = "";
+    private static string folderPath = "";
+    private static string fileContent = "";
         
-    private static char chosenValue;
+    private static char chosenValue = ' ';
     private static string pattern = "([A-Z]{2}_[A-Z][0-9]{2})";
     private static bool hasPath;
     private static string displayValue;
@@ -200,19 +200,19 @@ class Program
                 Console.WriteLine("\nWrong input !\n");
                 return AskChar();
         }
-            
-        if (fileContent.IndexOf(characterChoiceStr) == -1)
-        {
-            Console.WriteLine("\nCharacter not found ! Have you saved in his campaign ?\n");
-            return AskChar();
-        }
 
-        return characterChoiceStr;
+        if (fileContent.IndexOf(characterChoiceStr) != -1)
+        {
+            return characterChoiceStr;
+        }
+        Console.WriteLine("\nCharacter not found ! Have you saved in his campaign ?\n");
+        return AskChar();
+
     }
     
     private static string AskStat()
     {
-        String statsToFind;
+        string statsToFind;
            
         Console.Write("\nEnter the stat you want to edit:" +
                       "\n\n0 = Number Of Cycle passed" +
@@ -271,8 +271,8 @@ class Program
     
     private static string GetIntValue(string character, string valueToFind)
     {
-        string fileContent = File.ReadAllText(filePath);
-        string returnValue = "";
+        var fileContent = File.ReadAllText(filePath);
+        string returnValue;
         int displayValueInt;
         int start;
         int end;
@@ -289,12 +289,13 @@ class Program
             
         // For display value, remove the "-" if the character is Red
         displayValue = returnValue;
-        if (character.Contains("Red") && valueToFind == ";CYCLENUM")
+        if (!character.Contains("Red") || valueToFind != ";CYCLENUM")
         {
-            displayValue = returnValue.Substring(1);
-            int.TryParse(displayValue, out displayValueInt);
-            displayValue = (displayValueInt + 19).ToString();
+            return returnValue;
         }
+        displayValue = returnValue.Substring(1);
+        int.TryParse(displayValue, out displayValueInt);
+        displayValue = (displayValueInt + 19).ToString();
 
         return returnValue;
     }
@@ -302,26 +303,21 @@ class Program
     private static string GetStrValue(string character, string valueToFind)
     {
         fileContent = File.ReadAllText(filePath);
-        int start = fileContent.LastIndexOf(character);
-        int end = fileContent.IndexOf(valueToFind, start) + valueToFind.Length;
-        Regex regex = new Regex(pattern);
-        Match match = regex.Match(fileContent, end);
+        var start = fileContent.LastIndexOf(character);
+        var end = fileContent.IndexOf(valueToFind, start) + valueToFind.Length;
+        var regex = new Regex(pattern);
+        var match = regex.Match(fileContent, end);
             
         return match.Groups[1].Value;
     }
 
     private static string AskNewValueInt(string character, string stat)
     {
-        String newValue;
+        string newValue;
 
-        if (stat != ";TOTTIME")
-        {
-            Console.Write("\nEnter the new value (enter C to cancel) : ");
-        }
-        else
-        {
-            Console.Write("\nEnter the new value (in seconds) (enter C to cancel) : ");
-        }
+        Console.Write(stat != ";TOTTIME"
+            ? "\nEnter the new value (enter C to cancel) : "
+            : "\nEnter the new value (in seconds) (enter C to cancel) : ");
 
         newValue = Console.ReadLine();
         newValue = newValue.ToUpper();
@@ -361,7 +357,7 @@ class Program
 
     private static string AskNewValueStr()
     {
-        String newValue;
+        string newValue;
             
         Console.Write("\nEnter the new value /!\\make sure that it is a valid RW Room /!\\ (enter C to cancel) : ");
         newValue = Console.ReadLine();
@@ -372,20 +368,20 @@ class Program
             Console.Clear();
             Main();
         }
-        Regex regex = new Regex(pattern);
-        Match match = regex.Match(newValue);
-        if (!match.Success)
+        var regex = new Regex(pattern);
+        var match = regex.Match(newValue);
+        if (match.Success)
         {
-            Console.WriteLine("Enter a valid room (example : SU_S01) !");
-            return AskNewValueStr();
+            return newValue;
         }
-        return newValue;
+        Console.WriteLine("Enter a valid room (example : SU_S01) !");
+        return AskNewValueStr();
     }
     
     private static string EditIntValue(string character, string valueToFind, string newValue)
     {
-        string fileContent = File.ReadAllText(filePath);
-        int newValueInt = int.Parse(newValue);
+        var fileContent = File.ReadAllText(filePath);
+        var newValueInt = int.Parse(newValue);
         string numberStr;
         string replaced;
         int start;
@@ -420,14 +416,14 @@ class Program
         return numberStr;
     }
     
-    private static void EditStrValue(String character, String valueToFind, String newValue)
+    private static void EditStrValue(string character, string valueToFind, string newValue)
     {
         fileContent = File.ReadAllText(filePath);
-        int start = fileContent.LastIndexOf(character);
-        int end = fileContent.IndexOf(valueToFind, start) + valueToFind.Length;
-        Regex regex = new Regex(pattern);
-        Match match = regex.Match(fileContent, end);
-        string replaced = fileContent.Substring(0, match.Index) + newValue + fileContent.Substring(match.Index + match.Length);
+        var start = fileContent.LastIndexOf(character);
+        var end = fileContent.IndexOf(valueToFind, start) + valueToFind.Length;
+        var regex = new Regex(pattern);
+        var match = regex.Match(fileContent, end);
+        var replaced = fileContent.Substring(0, match.Index) + newValue + fileContent.Substring(match.Index + match.Length);
         displayValue = newValue;
             
         File.WriteAllText(filePath, replaced);
@@ -435,27 +431,28 @@ class Program
 
     private static string FindInt(int startIndex)
     {
-        string returnValue = "";
-            
-        StringBuilder number = new StringBuilder();
+        var returnValue = "";
+        
+        var number = new StringBuilder();
         for (int i = startIndex; i < fileContent.Length; i++)
         {
-            if (char.IsDigit(fileContent[i]) || fileContent[i] == '-')
+            if (!char.IsDigit(fileContent[i]) && fileContent[i] != '-')
             {
-                for (int j = i; j < fileContent.Length; j++)
-                {
-                    if (char.IsDigit(fileContent[j]) || fileContent[j] == '-') 
-                    {
-                        number.Append(fileContent[j]);
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                returnValue = number.ToString();
-                break;
+                continue;
             }
+            for (var j = i; j < fileContent.Length; j++)
+            {
+                if (char.IsDigit(fileContent[j]) || fileContent[j] == '-') 
+                {
+                    number.Append(fileContent[j]);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            returnValue = number.ToString();
+            break;
         }
         return returnValue;
     }
