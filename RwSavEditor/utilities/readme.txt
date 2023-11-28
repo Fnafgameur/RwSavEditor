@@ -24,3 +24,9 @@ FOOD : "[...]svA&gt;TOTFOOD&lt;svB&gt;5&lt;[...]" 5 étant la valeur entière
 donc FOOD : "[...]svA&gt;TOTFOOD&lt;svB&gt;{valeurInt}&lt;[...]"
 KARMA RENFORCE ? : "[...]dpA&gt;REINFORCEDKARMA&lt;dpB&gt;1&lt;[...]" 1 étant la valeur booléenne (0: faux, 1: vrai)
 donc KARMA RENFORCE ? : "[...]dpA&gt;REINFORCEDKARMA&lt;dpB&gt;{valeurBool}&lt;[...]"
+
+
+Les cycles du hunter fonctionnent différemment des autres (+ on monte en cycle, + on descend en valeur jusqu'aux négatif):
+
+ex:
+100 cyles feront -100-19=-119 cycles (car hunter commence avec 19 cycles)
