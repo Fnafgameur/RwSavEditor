@@ -39,7 +39,7 @@ namespace RwSavEditor
 
                     if (filePath == "d" || filePath == "debug")
                     {
-                        filePath = "C:\\Users\\Djimmy\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav_gourmand";
+                        filePath = "C:\\Users\\domicile\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav_all";
                     }
 
                     if (!File.Exists(filePath))
@@ -318,7 +318,7 @@ namespace RwSavEditor
                     characterChoiceStr = "Rivulet&lt;svA&gt;SEED&lt;svB&gt;";
                     break;
                 case '6':
-                    characterChoiceStr = "Spearmaster&lt;svA&gt;SEED&lt;svB&gt;";
+                    characterChoiceStr = "Spear&lt;svA&gt;SEED&lt;svB&gt;";
                     break;
                 case '7':
                     characterChoiceStr = "Saint&lt;svA&gt;SEED&lt;svB&gt;";
