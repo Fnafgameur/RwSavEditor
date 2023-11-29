@@ -33,15 +33,20 @@ class Program
                 
             do
             {
-                Console.Write("Provide path to your \"sav\" file (example : C:/Users/Example/Desktop/sav) : ");
+                Console.Write("Provide path to your \"sav\" file (example : \"C:/Users/Example/Desktop/sav\" OR \"./sav\" to select current directory) : ");
                 filePath = Console.ReadLine();
 
-
-                if (filePath == "d" || filePath == "debug")
+                if (!string.IsNullOrEmpty(filePath))
                 {
-                    filePath = "C:\\Users\\Djimmy\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav_all";
+                    if (filePath == "d" || filePath == "debug")
+                    {
+                        filePath = "C:\\Users\\Djimmy\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav_all";
+                    }
+                    else if (filePath[0] == '.')
+                    {
+                        filePath = Directory.GetCurrentDirectory() + filePath.Substring(1);
+                    }
                 }
-
                 if (!File.Exists(filePath))
                 {
                     Console.WriteLine("\nFile not found !\n");
@@ -59,10 +64,12 @@ class Program
          * -Ajouter stats manquantes 🟢
          * -Ajouter Survivor & Hunter 🟢
          * -Ajouter DLC scugs (à tester) 🟢
+         * ---Check if scug is in save
          * -Ajouter modded scugs ?
+         * ---Ajout scugs name manuellement ?
          * ---Faire en sorte que le nombre de cycle de hunter ne soit pas négatif lors de l'incrémentation de cycles 🟢
          * -Revérifier le code et tester afin de trouver des bugs
-         * ---Retester changer valeur string 🟠
+         * ---Retester changer valeur string 🟢
          * -Application sur l'esthétique (formulations des phrases, retour à la ligne, etc...) 🟠
          *
          * -Opti le code
@@ -114,7 +121,7 @@ class Program
                     }
                     else
                     {
-                        Console.WriteLine("Karma level not changed !");
+                        Console.WriteLine("\nKarma level not changed !\n");
                         Main();
                     }
                 }
@@ -226,8 +233,10 @@ class Program
                       "\n7 = Karma Level" +
                       "\n8 = Karma CAP" +
                       "\n9 = Reinforce Karma" +
+                      "\nC = Cancel" +
                       "\n>");
         statsToFind = Console.ReadLine();
+        statsToFind = statsToFind.ToUpper();
         char.TryParse(statsToFind, out chosenValue);
 
         switch (statsToFind) 
@@ -261,6 +270,10 @@ class Program
                 break;
             case "9":
                 statsToFind = ";REINFORCEDKARMA";
+                break;
+            case "C":
+                Console.Clear();
+                Main();
                 break;
             default:
                 Console.WriteLine("\nWrong input !");
@@ -328,7 +341,6 @@ class Program
             Console.Clear();
             Main();
         }
-        //Check if the input is a number
         if (!int.TryParse(newValue, out int num))
         {
             Console.WriteLine("Enter an integer number !");
@@ -362,7 +374,7 @@ class Program
     {
         string newValue;
             
-        Console.Write("\nEnter the new value /!\\make sure that it is a valid RW Room /!\\ (enter C to cancel) : ");
+        Console.Write("\nEnter the new value /!\\ make sure that it is a valid DEN Room, use the interactive map to get the name of the den you want /!\\ (enter C to cancel) : ");
         newValue = Console.ReadLine();
         newValue = newValue.ToUpper();
         char.TryParse(newValue, out chosenValue);
@@ -377,7 +389,7 @@ class Program
         {
             return newValue;
         }
-        Console.WriteLine("Enter a valid room (example : SU_S01) !");
+        Console.WriteLine("\nEnter a valid room (example : SU_S01) !");
         return AskNewValueStr();
     }
     
@@ -389,7 +401,7 @@ class Program
         int start;
         int end;
         int index;
-            
+        
         start = fileContent.LastIndexOf(character, StringComparison.Ordinal);
         if (start == -1)
         {
@@ -402,8 +414,7 @@ class Program
             
         index = fileContent.IndexOf(numberStr, end, StringComparison.Ordinal);
         replaced = fileContent.Substring(0, index) + newValue + fileContent.Substring(index + numberStr.Length);
-            
-        // Write the modified content back to the file
+        
         File.WriteAllText(filePath, replaced);
         return numberStr;
     }
@@ -452,11 +463,10 @@ class Program
     private static void CreateBackupSave()
     {
         string origFilePath;
-            
+        
         Console.WriteLine("\nCreating backup save...");
-        // Create a new file with the same name as the original + "_orig"
         origFilePath = folderPath + "\\" + Path.GetFileNameWithoutExtension(filePath) + "_backup" + Path.GetExtension(filePath);
-        // Check if the file already exists
+        
         if (File.Exists(origFilePath))
         {
             string choice;
@@ -468,7 +478,7 @@ class Program
             char.TryParse(choice, out chosenValue);
             if (chosenValue == 'Y')
             {
-                // Copy the content of the original file to the new one
+                // Overwrite the backup save
                 File.WriteAllText(origFilePath, File.ReadAllText(filePath));
                 Console.WriteLine("\nBackup save overwritten !\n");
             }
@@ -479,9 +489,8 @@ class Program
         }
         else
         {
-            // Create the file
+            // Create a backup save
             File.Create(origFilePath).Dispose();
-            // Copy the content of the original file to the new one
             File.WriteAllText(origFilePath, File.ReadAllText(filePath));
             Console.WriteLine("Backup save created !\n");
         }
