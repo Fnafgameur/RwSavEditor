@@ -201,7 +201,7 @@ class Program
                 return AskChar();
         }
 
-        if (fileContent.IndexOf(characterChoiceStr) != -1)
+        if (fileContent.IndexOf(characterChoiceStr, StringComparison.Ordinal) != -1)
         {
             return characterChoiceStr;
         }
@@ -276,15 +276,15 @@ class Program
         int displayValueInt;
         int start;
         int end;
-            
-        start = fileContent.LastIndexOf(character);
+        
+        start = fileContent.LastIndexOf(character, StringComparison.Ordinal);
         if (start == -1)
         {
             return "Value Not Found !";
         }
 
-        end = fileContent.IndexOf(valueToFind, start) + valueToFind.Length;
-
+        end = fileContent.IndexOf(valueToFind, start, StringComparison.Ordinal) + valueToFind.Length;
+        
         returnValue = FindInt(end);
             
         // For display value, remove the "-" if the character is Red
@@ -293,9 +293,19 @@ class Program
         {
             return returnValue;
         }
-        displayValue = returnValue.Substring(1);
-        int.TryParse(displayValue, out displayValueInt);
-        displayValue = (displayValueInt + 19).ToString();
+        
+        if (returnValue.Contains('-'))
+        {
+            int.TryParse(displayValue, out displayValueInt);
+            displayValue = (displayValueInt + 21).ToString();
+        }
+        else
+        {
+            int.TryParse(displayValue, out displayValueInt);
+            displayValue = (displayValueInt - 21).ToString();
+            displayValue = displayValue.Substring(1);
+        }
+        
 
         return returnValue;
     }
@@ -303,8 +313,8 @@ class Program
     private static string GetStrValue(string character, string valueToFind)
     {
         fileContent = File.ReadAllText(filePath);
-        var start = fileContent.LastIndexOf(character);
-        var end = fileContent.IndexOf(valueToFind, start) + valueToFind.Length;
+        var start = fileContent.LastIndexOf(character, StringComparison.Ordinal);
+        var end = fileContent.IndexOf(valueToFind, start, StringComparison.Ordinal) + valueToFind.Length;
         var regex = new Regex(pattern);
         var match = regex.Match(fileContent, end);
             
@@ -349,7 +359,14 @@ class Program
         if (character.Contains("Red") && stat == ";CYCLENUM")
         {
             // negate new value
-            newValue = "-" + (num - 19);
+            if (!(num - 21 < 0))
+            {
+                newValue = "-" + (num - 21);
+            }
+            else
+            {
+                newValue = (num - 21).ToString();
+            }
         }
             
         return newValue;
@@ -387,27 +404,39 @@ class Program
         int start;
         int end;
         int index;
+        int displayValueInt;
             
-        start = fileContent.LastIndexOf(character);
+        start = fileContent.LastIndexOf(character, StringComparison.Ordinal);
         if (start == -1)
         {
             return "Value Not Found !";
         }
 
-        end = fileContent.IndexOf(valueToFind, start) + valueToFind.Length;
+        end = fileContent.IndexOf(valueToFind, start, StringComparison.Ordinal) + valueToFind.Length;
             
         numberStr = FindInt(end);
             
-        index = fileContent.IndexOf(numberStr, end);
+        index = fileContent.IndexOf(numberStr, end, StringComparison.Ordinal);
         replaced = fileContent.Substring(0, index) + newValue + fileContent.Substring(index + numberStr.Length);
             
         // Write the modified content back to the file
         File.WriteAllText(filePath, replaced);
         if (character.Contains("Red"))
         {
-            displayValue = newValue.Substring(1);
+            if (numberStr.Contains('-'))
+            {
+                int.TryParse(displayValue, out displayValueInt);
+                displayValue = (displayValueInt + 21).ToString();
+            }
+            else
+            {
+                int.TryParse(displayValue, out displayValueInt);
+                displayValue = (displayValueInt - 21).ToString();
+                displayValue = displayValue.Substring(1);
+            }
+            displayValue = newValue;
             int.TryParse(displayValue, out newValueInt);
-            displayValue = (newValueInt + 19).ToString();
+            displayValue = (newValueInt + 21).ToString();
         }
         else
         {
@@ -419,8 +448,8 @@ class Program
     private static void EditStrValue(string character, string valueToFind, string newValue)
     {
         fileContent = File.ReadAllText(filePath);
-        var start = fileContent.LastIndexOf(character);
-        var end = fileContent.IndexOf(valueToFind, start) + valueToFind.Length;
+        var start = fileContent.LastIndexOf(character, StringComparison.Ordinal);
+        var end = fileContent.IndexOf(valueToFind, start, StringComparison.Ordinal) + valueToFind.Length;
         var regex = new Regex(pattern);
         var match = regex.Match(fileContent, end);
         var replaced = fileContent.Substring(0, match.Index) + newValue + fileContent.Substring(match.Index + match.Length);
