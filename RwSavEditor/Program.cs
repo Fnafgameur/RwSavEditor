@@ -13,6 +13,7 @@ class Program
     private static string pattern = "([A-Z]{2}_[A-Z][0-9]{2})";
     private static bool hasPath;
     private static string displayValue;
+    private static int displayValueInt;
         
     public static void Main()
     {
@@ -38,7 +39,7 @@ class Program
 
                 if (filePath == "d" || filePath == "debug")
                 {
-                    filePath = "C:\\Users\\domicile\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav_all";
+                    filePath = "C:\\Users\\Djimmy\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav_all";
                 }
 
                 if (!File.Exists(filePath))
@@ -273,7 +274,6 @@ class Program
     {
         var fileContent = File.ReadAllText(filePath);
         string returnValue;
-        int displayValueInt;
         int start;
         int end;
         
@@ -286,26 +286,16 @@ class Program
         end = fileContent.IndexOf(valueToFind, start, StringComparison.Ordinal) + valueToFind.Length;
         
         returnValue = FindInt(end);
-            
-        // For display value, remove the "-" if the character is Red
+        
         displayValue = returnValue;
         if (!character.Contains("Red") || valueToFind != ";CYCLENUM")
         {
             return returnValue;
         }
         
-        if (returnValue.Contains('-'))
-        {
-            int.TryParse(displayValue, out displayValueInt);
-            displayValue = (displayValueInt + 21).ToString();
-        }
-        else
-        {
-            int.TryParse(displayValue, out displayValueInt);
-            displayValue = (displayValueInt - 21).ToString();
-            displayValue = displayValue.Substring(1);
-        }
-        
+        // Reverse the value of the cycle number to display it correctly
+        int.TryParse(displayValue, out displayValueInt);
+        displayValue = (19 - displayValueInt).ToString();
 
         return returnValue;
     }
@@ -324,6 +314,7 @@ class Program
     private static string AskNewValueInt(string character, string stat)
     {
         string newValue;
+        int newValueInt;
 
         Console.Write(stat != ";TOTTIME"
             ? "\nEnter the new value (enter C to cancel) : "
@@ -355,20 +346,15 @@ class Program
             Console.WriteLine("Number must be either 0 or 1 !");
             return AskNewValueInt(character, stat);
         }
-            
+        
+        displayValue = newValue;
+        
         if (character.Contains("Red") && stat == ";CYCLENUM")
         {
-            // negate new value
-            if (!(num - 21 < 0))
-            {
-                newValue = "-" + (num - 21);
-            }
-            else
-            {
-                newValue = (num - 21).ToString();
-            }
+            int.TryParse(newValue, out newValueInt);
+            newValue = (19 - newValueInt).ToString();
         }
-            
+
         return newValue;
     }
 
@@ -398,13 +384,11 @@ class Program
     private static string EditIntValue(string character, string valueToFind, string newValue)
     {
         var fileContent = File.ReadAllText(filePath);
-        var newValueInt = int.Parse(newValue);
         string numberStr;
         string replaced;
         int start;
         int end;
         int index;
-        int displayValueInt;
             
         start = fileContent.LastIndexOf(character, StringComparison.Ordinal);
         if (start == -1)
@@ -421,27 +405,6 @@ class Program
             
         // Write the modified content back to the file
         File.WriteAllText(filePath, replaced);
-        if (character.Contains("Red"))
-        {
-            if (numberStr.Contains('-'))
-            {
-                int.TryParse(displayValue, out displayValueInt);
-                displayValue = (displayValueInt + 21).ToString();
-            }
-            else
-            {
-                int.TryParse(displayValue, out displayValueInt);
-                displayValue = (displayValueInt - 21).ToString();
-                displayValue = displayValue.Substring(1);
-            }
-            displayValue = newValue;
-            int.TryParse(displayValue, out newValueInt);
-            displayValue = (newValueInt + 21).ToString();
-        }
-        else
-        {
-            displayValue = newValue;
-        }
         return numberStr;
     }
     
