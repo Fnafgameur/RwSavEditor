@@ -241,7 +241,7 @@ class Program
         {
             return characterChoiceStr;
         }
-        Console.WriteLine("\nCharacter not found ! Have you saved in his campaign ?\n");
+        PrintError("\nCharacter not found ! Have you saved in his campaign ?\n");
         return AskChar();
 
     }
