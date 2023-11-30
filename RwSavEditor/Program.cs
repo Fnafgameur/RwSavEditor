@@ -33,25 +33,42 @@ class Program
                 
             do
             {
-                Console.Write("Provide path to your \"sav\" file (example : \"C:/Users/Example/Desktop/sav\" OR \"./sav\" to select current directory) : ");
+                Console.ForegroundColor = ConsoleColor.DarkCyan;
+                Console.Write("Provide path to your \"sav\" file (e.g : \"C:/Users/Example/Desktop/sav\" OR \"./sav\" to select in the current directory) : ");
+                Console.ResetColor();
                 filePath = Console.ReadLine();
 
-                if (!string.IsNullOrEmpty(filePath))
+                if (string.IsNullOrEmpty(filePath))
                 {
-                    if (filePath == "d" || filePath == "debug")
-                    {
-                        filePath = "C:\\Users\\Djimmy\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav_all";
-                    }
-                    else if (filePath[0] == '.')
-                    {
-                        filePath = Directory.GetCurrentDirectory() + filePath.Substring(1);
-                    }
+                    PrintError("\nNo path provided !\n");
+                    continue;
+                }
+                if (filePath == "d" || filePath == "debug")
+                {
+                    filePath = "C:\\Users\\domicile\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav_all";
+                }
+                else if (filePath[0] == '.')
+                {
+                    filePath = Directory.GetCurrentDirectory() + filePath.Substring(1);
                 }
                 if (!File.Exists(filePath))
                 {
-                    Console.WriteLine("\nFile not found !\n");
+                    PrintError("\nFile not found !\n");
+                    continue;
                 }
-            } while (!File.Exists(filePath));
+                
+                fileContent = File.ReadAllText(filePath).Substring(0, 32);
+                
+                if (!fileContent.StartsWith("<ArrayOfKeyValueOfanyTypeanyType"))
+                {
+                    PrintError("\nIncorrect file !\n");
+                }
+            } while (!File.Exists(filePath) || !fileContent.StartsWith("<ArrayOfKeyValueOfanyTypeanyType"));
+            
+            Console.Write("\nOpened file : ");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write(filePath + "\n");
+            Console.ResetColor();
             folderPath = Path.GetDirectoryName(filePath);
             CreateBackupSave();
             hasPath = true;
@@ -81,6 +98,8 @@ class Program
         if (!statsToFind.Contains("DEN"))
         {
             GetIntValue(characterChoice, statsToFind);
+            
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
             if (statsToFind != ";TOTTIME")
             {
                 Console.WriteLine("\nCurrent Value : " + displayValue);
@@ -89,16 +108,19 @@ class Program
             {
                 Console.WriteLine("Current Value (in seconds) : " + displayValue);
             }
+            Console.ResetColor();
 
             if (statsToFind == ";KARMA")
             {
+                Console.ForegroundColor = ConsoleColor.DarkYellow;
                 Console.WriteLine("Karma CAP : " + GetIntValue(characterChoice, ";KARMACAP"));
+                Console.ResetColor();
             }
             newValue = AskNewValueInt(characterChoice, statsToFind);
 
             if (statsToFind == ";KARMA")
             {
-                String karmaCap = GetIntValue(characterChoice, ";KARMACAP");
+                string karmaCap = GetIntValue(characterChoice, ";KARMACAP");
                 if (int.Parse(newValue) > maxKarma)
                 {
                     Console.WriteLine("Karma level can't be higher than 9 !");
@@ -135,7 +157,9 @@ class Program
             newValue = AskNewValueStr();
             EditStrValue(characterChoice, statsToFind, newValue);
         }
+        Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine("\nValue changed to : " + displayValue + " with success ! ");
+        Console.ResetColor();
         Console.WriteLine("\nWould you like to edit another stat ?\n");
         Console.Write("Y/n : ");
         selectedChoice = Console.ReadLine();
@@ -157,18 +181,22 @@ class Program
     {
         fileContent = File.ReadAllText(filePath);
         string characterChoiceStr;
-            
-        Console.Write("Enter the character's save you want to edit:\n" +
-                      "\n0 = Monk" +
-                      "\n1 = Survivor" +
-                      "\n2 = Hunter" +
-                      "\n3 = Gourmand" +
-                      "\n4 = Artificer" +
-                      "\n5 = Rivulet" +
-                      "\n6 = Spearmaster" +
-                      "\n7 = Saint" +
-                      "\nR = Restart the program" +
-                      "\n>");
+
+        Console.ForegroundColor = ConsoleColor.DarkCyan;
+        Console.Write("Enter the character's save you want to edit:\n");
+        Console.ResetColor();
+        
+        Console.Write("\n0 = Monk" +
+                          "\n1 = Survivor" +
+                          "\n2 = Hunter" +
+                          "\n3 = Gourmand" +
+                          "\n4 = Artificer" +
+                          "\n5 = Rivulet" +
+                          "\n6 = Spearmaster" +
+                          "\n7 = Saint" +
+                          "\nR = Restart the program" +
+                          "\n>");
+    
         characterChoiceStr = Console.ReadLine();
         characterChoiceStr = characterChoiceStr.ToUpper();
         char.TryParse(characterChoiceStr, out chosenValue);
@@ -205,7 +233,7 @@ class Program
                 Main();
                 break;
             default:
-                Console.WriteLine("\nWrong input !\n");
+                PrintError("\nWrong input !\n");
                 return AskChar();
         }
 
@@ -221,9 +249,12 @@ class Program
     private static string AskStat()
     {
         string statsToFind;
+        
+        Console.ForegroundColor = ConsoleColor.DarkCyan;
+        Console.Write("\nEnter the stat you want to edit:");
+        Console.ResetColor();
            
-        Console.Write("\nEnter the stat you want to edit:" +
-                      "\n\n0 = Number Of Cycle passed" +
+        Console.Write("\n\n0 = Number Of Cycle passed" +
                       "\n1 = Number Of Deaths" +
                       "\n2 = Number Of Cycle survived" +
                       "\n3 = Number Of Cycle abandonned" +
@@ -276,7 +307,7 @@ class Program
                 Main();
                 break;
             default:
-                Console.WriteLine("\nWrong input !");
+                PrintError("\nWrong input !");
                 return AskStat();
         }
 
@@ -293,7 +324,8 @@ class Program
         start = fileContent.LastIndexOf(character, StringComparison.Ordinal);
         if (start == -1)
         {
-            return "Value Not Found !";
+            PrintError("Value Not Found !");
+            return "";
         }
 
         end = fileContent.IndexOf(valueToFind, start, StringComparison.Ordinal) + valueToFind.Length;
@@ -329,10 +361,21 @@ class Program
         string newValue;
         int newValueInt;
 
-        Console.Write(stat != ";TOTTIME"
-            ? "\nEnter the new value (enter C to cancel) : "
-            : "\nEnter the new value (in seconds) (enter C to cancel) : ");
-
+        Console.ForegroundColor = ConsoleColor.DarkCyan;
+        switch (stat)
+        {
+            case ";TOTTIME":
+                Console.Write("\nEnter the new value (in seconds) (enter C to cancel) : ");
+                break;
+            case ";REINFORCEDKARMA":
+                Console.Write("\nEnter the new value (0 or 1) (enter C to cancel) : ");
+                break;
+            default:
+                Console.Write("\nEnter the new value (enter C to cancel) : ");
+                break;
+        }
+        Console.ResetColor();
+        
         newValue = Console.ReadLine();
         newValue = newValue.ToUpper();
         char.TryParse(newValue, out chosenValue);
@@ -341,31 +384,33 @@ class Program
             Console.Clear();
             Main();
         }
-        if (!int.TryParse(newValue, out int num))
+        if (!int.TryParse(newValue, out var num))
         {
-            Console.WriteLine("Enter an integer number !");
+            PrintError("Enter an integer number !");
             return AskNewValueInt(character, stat);
         }
             
         if (num < 0 && stat != ";CYCLENUM")
         {
-            Console.WriteLine("Number must be positive !");
+            PrintError("Number must be positive !");
             return AskNewValueInt(character, stat);
         }
 
         if (stat == ";REINFORCEDKARMA" && num != 0 && num != 1)
         {
-            Console.WriteLine("Number must be either 0 or 1 !");
+            PrintError("Number must be either 0 or 1 !");
             return AskNewValueInt(character, stat);
         }
         
         displayValue = newValue;
-        
-        if (character.Contains("Red") && stat == ";CYCLENUM")
+
+        if (!character.Contains("Red") || stat != ";CYCLENUM")
         {
-            int.TryParse(newValue, out newValueInt);
-            newValue = (19 - newValueInt).ToString();
+            return newValue;
         }
+        
+        int.TryParse(newValue, out newValueInt);
+        newValue = (19 - newValueInt).ToString();
 
         return newValue;
     }
@@ -373,8 +418,15 @@ class Program
     private static string AskNewValueStr()
     {
         string newValue;
-            
-        Console.Write("\nEnter the new value /!\\ make sure that it is a valid DEN Room, use the interactive map to get the name of the den you want /!\\ (enter C to cancel) : ");
+        
+        Console.ForegroundColor = ConsoleColor.DarkCyan;
+        Console.Write("\nEnter the new value ");
+        Console.ForegroundColor = ConsoleColor.DarkRed;
+        Console.Write("\n/!\\ make sure that it is a valid DEN Room, use the interactive map to get the name of the den you want /!\\ ");
+        Console.ForegroundColor = ConsoleColor.DarkCyan;
+        Console.Write("(enter C to cancel) : ");
+        Console.ResetColor();
+        
         newValue = Console.ReadLine();
         newValue = newValue.ToUpper();
         char.TryParse(newValue, out chosenValue);
@@ -389,7 +441,7 @@ class Program
         {
             return newValue;
         }
-        Console.WriteLine("\nEnter a valid room (example : SU_S01) !");
+        PrintError("\nEnter a valid room (example : SU_S01) !");
         return AskNewValueStr();
     }
     
@@ -405,7 +457,8 @@ class Program
         start = fileContent.LastIndexOf(character, StringComparison.Ordinal);
         if (start == -1)
         {
-            return "Value Not Found !";
+            PrintError("Value Not Found !");
+            return "";
         }
 
         end = fileContent.IndexOf(valueToFind, start, StringComparison.Ordinal) + valueToFind.Length;
@@ -471,11 +524,15 @@ class Program
         {
             string choice;
                 
-            Console.WriteLine("Backup save already exists in " + folderPath + " !");
+            Console.Write("Backup save already exists in ");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine(folderPath);
+            Console.ResetColor();
             Console.Write("Would you like to overwrite it ?\n\ny/N : ");
             choice = Console.ReadLine();
             choice = choice.ToUpper();
             char.TryParse(choice, out chosenValue);
+            Console.ForegroundColor = ConsoleColor.Green;
             if (chosenValue == 'Y')
             {
                 // Overwrite the backup save
@@ -494,5 +551,14 @@ class Program
             File.WriteAllText(origFilePath, File.ReadAllText(filePath));
             Console.WriteLine("Backup save created !\n");
         }
+        Console.ResetColor();
+    }
+
+    private static void PrintError(string errorMessage)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine(errorMessage);
+        Console.ResetColor();
+        Thread.Sleep(360);
     }
 }
