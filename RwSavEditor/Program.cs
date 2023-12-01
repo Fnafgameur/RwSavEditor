@@ -27,9 +27,11 @@ class Program
             
         if (!hasPath)
         {
-            Console.WriteLine("Welcome to the Rain World Save Editor !\n" +
-                              "This program allows you to edit your save file in order to change stats of your scugs\n" +
-                              "/!\\ Modded scugs are not supported yet /!\\\n");
+            Console.Write("Welcome to the Rain World Save Editor !\n" +
+                              "This program allows you to edit your save file in order to change stats of your scugs\n");
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("/!\\ Modded scugs are not supported yet /!\\\n");
+            Console.WriteLine("/!\\ This project is still in development, even if the program create a backup, create one manually /!\\\n");
                 
             do
             {
@@ -51,9 +53,16 @@ class Program
                 {
                     filePath = Directory.GetCurrentDirectory() + filePath.Substring(1);
                 }
+                
                 if (!File.Exists(filePath))
                 {
                     PrintError("\nFile not found !\n");
+                    continue;
+                }
+                
+                if (Path.GetExtension(filePath) != ".sav" && Path.GetExtension(filePath) != "")
+                {
+                    PrintError("\nIncorrect file extension !\n");
                     continue;
                 }
                 
@@ -63,7 +72,7 @@ class Program
                 {
                     PrintError("\nIncorrect file !\n");
                 }
-            } while (!File.Exists(filePath) || !fileContent.StartsWith("<ArrayOfKeyValueOfanyTypeanyType"));
+            } while (!File.Exists(filePath) || !fileContent.StartsWith("<ArrayOfKeyValueOfanyTypeanyType") || Path.GetExtension(filePath) != ".sav" && Path.GetExtension(filePath) != "");
             
             Console.Write("\nOpened file : ");
             Console.ForegroundColor = ConsoleColor.Cyan;
@@ -90,6 +99,7 @@ class Program
          * -Application sur l'esthétique (formulations des phrases, retour à la ligne, etc...) 🟠
          *
          * -Opti le code
+         * -Ajouter des commentaires
          */
             
         characterChoice = AskChar();
