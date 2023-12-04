@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Drawing;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace RwSavEditor;
@@ -14,9 +15,9 @@ class Program
     private static bool hasPath;
     private static string displayValue;
     private static int displayValueInt;
+    private static Dictionary<int, string> charsFoundDictionary = new();
 
-    private static string[] characters =
-    {
+    private static string[] characters = {
         "Yellow&lt;svA&gt;SEED&lt;svB&gt;",
         "White&lt;svA&gt;SEED&lt;svB&gt;",
         "Red&lt;svA&gt;SEED&lt;svB&gt;",
@@ -34,33 +35,31 @@ class Program
         string valueReturned;
         string newValue;
         string selectedChoice;
-        string[] charsFound;
             
         const int maxKarma = 9;
+        
+        charsFoundDictionary.Clear();
             
         if (!hasPath)
         {
             Console.Write("Welcome to the Rain World Save Editor !\n" +
                               "This program allows you to edit your save file in order to change stats of your scugs\n");
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("/!\\ Modded scugs are not supported yet /!\\\n");
-            Console.WriteLine("/!\\ This project is still in development, even if the program create a backup, create one manually /!\\\n");
+            PrintMessage("\n/!\\ Modded scugs are not supported yet /!\\", "error");
+            PrintMessage("/!\\ This project is still in development, even if the program create a backup, create one manually /!\\\n", "error");
                 
             do
             {
-                Console.ForegroundColor = ConsoleColor.DarkCyan;
-                Console.Write("Provide path to your \"sav\" file (e.g : \"C:/Users/Example/Desktop/sav\" OR \"./sav\" to select in the current directory) : ");
-                Console.ResetColor();
+                PrintMessage("Provide path to your \"sav\" file (e.g : \"C:/Users/Example/Desktop/sav\" OR \"./sav\" to select in the current directory) : ", "ask");
                 filePath = Console.ReadLine();
 
                 if (string.IsNullOrEmpty(filePath))
                 {
-                    PrintError("\nNo path provided !\n");
+                    PrintMessage("No path provided !", "error");
                     continue;
                 }
                 if (filePath == "d" || filePath == "debug")
                 {
-                    filePath = "C:\\Users\\Djimmy\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav_hunter";
+                    filePath = "C:\\Users\\domicile\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav_hunter";
                 }
                 else if (filePath[0] == '.')
                 {
@@ -69,13 +68,13 @@ class Program
                 
                 if (!File.Exists(filePath))
                 {
-                    PrintError("\nFile not found !\n");
+                    PrintMessage("File not found !", "error");
                     continue;
                 }
                 
                 if (Path.GetExtension(filePath) != ".sav" && Path.GetExtension(filePath) != "")
                 {
-                    PrintError("\nIncorrect file extension !\n");
+                    PrintMessage("Incorrect file extension !", "error");
                     continue;
                 }
                 
@@ -83,14 +82,12 @@ class Program
                 
                 if (!fileContent.StartsWith("<ArrayOfKeyValueOfanyTypeanyType"))
                 {
-                    PrintError("\nIncorrect file !\n");
+                    PrintMessage("Incorrect file !", "error");
                 }
             } while (!File.Exists(filePath) || !fileContent.StartsWith("<ArrayOfKeyValueOfanyTypeanyType") || Path.GetExtension(filePath) != ".sav" && Path.GetExtension(filePath) != "");
             
             Console.Write("\nOpened file : ");
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write(filePath + "\n");
-            Console.ResetColor();
+            PrintMessage(filePath + "\n", "ask");
             folderPath = Path.GetDirectoryName(filePath);
             CreateBackupSave();
             hasPath = true;
@@ -114,38 +111,34 @@ class Program
          * -Opti le code
          * -Ajouter des commentaires
          */
-
-        charsFound = FindChars();
-            
-        characterChoice = AskChar(charsFound);
+        
+        FindChars();
+        
+        characterChoice = AskChar();
         statsToFind = AskStat();
 
         if (!statsToFind.Contains("DEN"))
         {
             GetIntValue(characterChoice, statsToFind);
             
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
             if (statsToFind != ";TOTTIME")
             {
-                Console.WriteLine("\nCurrent Value : " + displayValue);
+                PrintMessage("\nCurrent Value : " + displayValue, "warning");
             }
             else
             {
-                Console.WriteLine("Current Value (in seconds) : " + displayValue);
+                PrintMessage("Current Value (in seconds) : " + displayValue, "warning");
             }
-            Console.ResetColor();
 
             if (statsToFind == ";KARMA")
             {
-                Console.ForegroundColor = ConsoleColor.DarkYellow;
-                Console.WriteLine("Karma CAP : " + GetIntValue(characterChoice, ";KARMACAP"));
-                Console.ResetColor();
+                PrintMessage("Karma CAP : " + GetIntValue(characterChoice, ";KARMACAP"), "warning");
             }
             newValue = AskNewValueInt(characterChoice, statsToFind);
 
             if (statsToFind == ";KARMA")
             {
-                string karmaCap = GetIntValue(characterChoice, ";KARMACAP");
+                var karmaCap = GetIntValue(characterChoice, ";KARMACAP");
                 if (int.Parse(newValue) > maxKarma)
                 {
                     Console.WriteLine("Karma level can't be higher than 9 !");
@@ -162,7 +155,7 @@ class Program
                     choice = Console.ReadLine();
                     choice = choice.ToUpper();
                     char.TryParse(choice, out chosenValue);
-                    if (chosenValue == 'Y' || chosenValue == '\0' || chosenValue == ' ')
+                    if (chosenValue is 'Y' or '\0' or ' ')
                     {
                         Console.WriteLine(EditIntValue(characterChoice, ";KARMACAP", newValue));
                     }
@@ -182,9 +175,7 @@ class Program
             newValue = AskNewValueStr();
             EditStrValue(characterChoice, statsToFind, newValue);
         }
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("\nValue changed to : " + displayValue + " with success ! ");
-        Console.ResetColor();
+        PrintMessage("\nValue changed to : " + displayValue + " with success ! ", "success");
         Console.WriteLine("\nWould you like to edit another stat ?\n");
         Console.Write("Y/n : ");
         selectedChoice = Console.ReadLine();
@@ -202,7 +193,7 @@ class Program
         }
     }
 
-    private static string[] FindChars()
+    private static void FindChars()
     {
         var fileContent = File.ReadAllText(filePath);
         var index = 0;
@@ -211,93 +202,89 @@ class Program
         
         foreach (var charsFound in characters)
         {
-            if (fileContent.IndexOf(charsFound, StringComparison.Ordinal) != -1)
+            if (fileContent.IndexOf(charsFound, StringComparison.Ordinal) == -1)
             {
-                returnChars[index] = charsFound;
-                index++;
+                continue;
             }
+            returnChars[index] = charsFound;
+            index++;
         }
-        
-        // Ajout check color pour name
         
         charsName = new string[index];
         for (var i = 0; i < index; i++)
         {
             charsName[i] = returnChars[i].Substring(0, returnChars[i].IndexOf('&'));
+
+            switch (charsName[i])
+            {
+                case "Yellow":
+                    charsName[i] = "Monk";
+                    break;
+                case "White":
+                    charsName[i] = "Survivor";
+                    break;
+                case "Red":
+                    charsName[i] = "Hunter";
+                    break;
+            }
+            
+            charsFoundDictionary.Add(i, charsName[i]);
         }
-        for (var j=0; j < index; j++)
+
+        if (charsFoundDictionary.Count != 0)
         {
-            Console.WriteLine(j + " = " + charsName[j]);
+            return;
         }
-        
-        return returnChars;
+        PrintMessage("No character found !\nPress Enter to restart the program...", "error");
+        Console.ReadLine();
+        Console.Clear();
+        hasPath = false;
+        Main();
     }
     
-    private static string AskChar(string[] charsFound)
+    private static string AskChar()
     {
         fileContent = File.ReadAllText(filePath);
         string characterChoiceStr;
-
-        Console.ForegroundColor = ConsoleColor.DarkCyan;
-        Console.Write("Enter the character's save you want to edit:\n");
-        Console.ResetColor();
         
-        Console.Write("\n0 = Monk" +
-                          "\n1 = Survivor" +
-                          "\n2 = Hunter" +
-                          "\n3 = Gourmand" +
-                          "\n4 = Artificer" +
-                          "\n5 = Rivulet" +
-                          "\n6 = Spearmaster" +
-                          "\n7 = Saint" +
-                          "\nR = Restart the program" +
-                          "\n>");
-    
+        PrintMessage("Enter the character's save you want to edit:\n", "ask");
+
+        foreach (var chars in charsFoundDictionary)
+        {
+            Console.WriteLine(chars.Key + " = " + chars.Value);
+        }
+        Console.Write("R = Restart the program\n>");
+        
         characterChoiceStr = Console.ReadLine();
         characterChoiceStr = characterChoiceStr.ToUpper();
         char.TryParse(characterChoiceStr, out chosenValue);
-            
-        switch (chosenValue)
+        
+        if (chosenValue == 'R')
         {
-            case '0':
-                characterChoiceStr = "Yellow&lt;svA&gt;SEED&lt;svB&gt;";
-                break;
-            case '1':
-                characterChoiceStr = "White&lt;svA&gt;SEED&lt;svB&gt;";
-                break;
-            case '2':
-                characterChoiceStr = "Red&lt;svA&gt;SEED&lt;svB&gt;";
-                break;
-            case '3':
-                characterChoiceStr = "Gourmand&lt;svA&gt;SEED&lt;svB&gt;";
-                break;
-            case '4':
-                characterChoiceStr = "Artificer&lt;svA&gt;SEED&lt;svB&gt;";
-                break;
-            case '5':
-                characterChoiceStr = "Rivulet&lt;svA&gt;SEED&lt;svB&gt;";
-                break;
-            case '6':
-                characterChoiceStr = "Spear&lt;svA&gt;SEED&lt;svB&gt;";
-                break;
-            case '7':
-                characterChoiceStr = "Saint&lt;svA&gt;SEED&lt;svB&gt;";
-                break;
-            case 'R':
-                hasPath = false;
-                Console.Clear();
-                Main();
-                break;
-            default:
-                PrintError("\nWrong input !\n");
-                return AskChar();
+            Console.Clear();
+            hasPath = false;
+            Main();
         }
+        
+        if (!int.TryParse(characterChoiceStr, out var num))
+        {
+            PrintMessage("Enter a valid number !", "error");
+            return AskChar();
+        }
+        
+        if (num < 0 || num > charsFoundDictionary.Count - 1)
+        {
+            PrintMessage("Enter a number between 0 and " + (charsFoundDictionary.Count - 1) + " !", "error");
+            return AskChar();
+        }
+
+        characterChoiceStr = characters[charsFoundDictionary.Keys.ElementAt(num)];
 
         if (fileContent.IndexOf(characterChoiceStr, StringComparison.Ordinal) != -1)
         {
             return characterChoiceStr;
         }
-        PrintError("\nCharacter not found ! Have you saved in his campaign ?\n");
+        PrintMessage("Character not found ! Have you saved in his campaign ?", "error");
         return AskChar();
 
     }
@@ -306,10 +293,8 @@ class Program
     {
         string statsToFind;
         
-        Console.ForegroundColor = ConsoleColor.DarkCyan;
-        Console.Write("\nEnter the stat you want to edit:");
-        Console.ResetColor();
-           
+        PrintMessage("\nEnter the stat you want to edit:", "ask");
+        
         Console.Write("\n\n0 = Number Of Cycle passed" +
                       "\n1 = Number Of Deaths" +
                       "\n2 = Number Of Cycle survived" +
@@ -363,7 +348,7 @@ class Program
                 Main();
                 break;
             default:
-                PrintError("\nWrong input !");
+                PrintMessage("Wrong input !", "error");
                 return AskStat();
         }
 
@@ -380,7 +365,7 @@ class Program
         start = fileContent.LastIndexOf(character, StringComparison.Ordinal);
         if (start == -1)
         {
-            PrintError("Value Not Found !");
+            PrintMessage("Value Not Found !", "error");
             return "";
         }
 
@@ -416,21 +401,19 @@ class Program
     {
         string newValue;
         int newValueInt;
-
-        Console.ForegroundColor = ConsoleColor.DarkCyan;
+        
         switch (stat)
         {
             case ";TOTTIME":
-                Console.Write("\nEnter the new value (in seconds) (enter C to cancel) : ");
+                PrintMessage("\nEnter the new value (in seconds) (enter C to cancel) : ", "ask");
                 break;
             case ";REINFORCEDKARMA":
-                Console.Write("\nEnter the new value (0 or 1) (enter C to cancel) : ");
+                PrintMessage("\nEnter the new value (0 or 1) (enter C to cancel) : ", "ask");
                 break;
             default:
-                Console.Write("\nEnter the new value (enter C to cancel) : ");
+                PrintMessage("\nEnter the new value (enter C to cancel) : ", "ask");
                 break;
         }
-        Console.ResetColor();
         
         newValue = Console.ReadLine();
         newValue = newValue.ToUpper();
@@ -442,19 +425,19 @@ class Program
         }
         if (!int.TryParse(newValue, out var num))
         {
-            PrintError("Enter an integer number !");
+            PrintMessage("Enter an integer number !", "error");
             return AskNewValueInt(character, stat);
         }
             
         if (num < 0 && stat != ";CYCLENUM")
         {
-            PrintError("Number must be positive !");
+            PrintMessage("Number must be positive !", "error");
             return AskNewValueInt(character, stat);
         }
 
         if (stat == ";REINFORCEDKARMA" && num != 0 && num != 1)
         {
-            PrintError("Number must be either 0 or 1 !");
+            PrintMessage("Number must be either 0 or 1 !", "error");
             return AskNewValueInt(character, stat);
         }
         
@@ -475,13 +458,9 @@ class Program
     {
         string newValue;
         
-        Console.ForegroundColor = ConsoleColor.DarkCyan;
-        Console.Write("\nEnter the new value ");
-        Console.ForegroundColor = ConsoleColor.DarkRed;
-        Console.Write("\n/!\\ make sure that it is a valid DEN Room, use the interactive map to get the name of the den you want /!\\ ");
-        Console.ForegroundColor = ConsoleColor.DarkCyan;
-        Console.Write("(enter C to cancel) : ");
-        Console.ResetColor();
+        PrintMessage("\nEnter the new value ", "ask");
+        PrintMessage("\n/!\\ make sure that it is a valid DEN Room, use the interactive map to get the name of the den you want /!\\ ", "error");
+        PrintMessage("(enter C to cancel) : ", "ask");
         
         newValue = Console.ReadLine();
         newValue = newValue.ToUpper();
@@ -497,7 +476,7 @@ class Program
         {
             return newValue;
         }
-        PrintError("\nEnter a valid room (example : SU_S01) !");
+        PrintMessage("Enter a valid room (example : SU_S01) !", "error");
         return AskNewValueStr();
     }
     
@@ -513,7 +492,7 @@ class Program
         start = fileContent.LastIndexOf(character, StringComparison.Ordinal);
         if (start == -1)
         {
-            PrintError("Value Not Found !");
+            PrintMessage("Value Not Found !", "error");
             return "";
         }
 
@@ -581,23 +560,20 @@ class Program
             string choice;
                 
             Console.Write("Backup save already exists in ");
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine(folderPath);
-            Console.ResetColor();
+            PrintMessage(folderPath, "info");
             Console.Write("Would you like to overwrite it ?\n\ny/N : ");
             choice = Console.ReadLine();
             choice = choice.ToUpper();
             char.TryParse(choice, out chosenValue);
-            Console.ForegroundColor = ConsoleColor.Green;
             if (chosenValue == 'Y')
             {
                 // Overwrite the backup save
                 File.WriteAllText(origFilePath, File.ReadAllText(filePath));
-                Console.WriteLine("\nBackup save overwritten !\n");
+                PrintMessage("\nBackup save overwritten !\n", "success");
             }
             else
             {
-                Console.WriteLine("\nBackup save not created !\n");
+                PrintMessage("\nBackup save not created !\n", "success");
             }
         }
         else
@@ -605,15 +581,22 @@ class Program
             // Create a backup save
             File.Create(origFilePath).Dispose();
             File.WriteAllText(origFilePath, File.ReadAllText(filePath));
-            Console.WriteLine("Backup save created !\n");
+            PrintMessage("Backup save created !\n", "success");
         }
-        Console.ResetColor();
     }
-
-    private static void PrintError(string errorMessage)
+    
+    private static void PrintMessage(string message, string messageType)
     {
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine(errorMessage);
+        Console.ForegroundColor = messageType switch
+        {
+            "error" => ConsoleColor.Red,
+            "success" => ConsoleColor.Green,
+            "warning" => ConsoleColor.DarkYellow,
+            "info" => ConsoleColor.Cyan,
+            "ask" => ConsoleColor.DarkCyan,
+            _ => ConsoleColor.White
+        };
+        Console.WriteLine("\n" + message + "\n");
         Console.ResetColor();
         Thread.Sleep(360);
     }
