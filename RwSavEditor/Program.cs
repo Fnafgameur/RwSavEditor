@@ -14,6 +14,18 @@ class Program
     private static bool hasPath;
     private static string displayValue;
     private static int displayValueInt;
+
+    private static string[] characters =
+    {
+        "Yellow&lt;svA&gt;SEED&lt;svB&gt;",
+        "White&lt;svA&gt;SEED&lt;svB&gt;",
+        "Red&lt;svA&gt;SEED&lt;svB&gt;",
+        "Gourmand&lt;svA&gt;SEED&lt;svB&gt;",
+        "Artificer&lt;svA&gt;SEED&lt;svB&gt;",
+        "Rivulet&lt;svA&gt;SEED&lt;svB&gt;",
+        "Spear&lt;svA&gt;SEED&lt;svB&gt;",
+        "Saint&lt;svA&gt;SEED&lt;svB&gt;"
+    };
         
     public static void Main()
     {
@@ -22,6 +34,7 @@ class Program
         string valueReturned;
         string newValue;
         string selectedChoice;
+        string[] charsFound;
             
         const int maxKarma = 9;
             
@@ -45,7 +58,7 @@ class Program
                 }
                 if (filePath == "d" || filePath == "debug")
                 {
-                    filePath = "C:\\Users\\domicile\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav_all";
+                    filePath = "C:\\Users\\Djimmy\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav_hunter";
                 }
                 else if (filePath[0] == '.')
                 {
@@ -91,8 +104,10 @@ class Program
          *
          * -Opti le code
          */
+
+        charsFound = FindChars();
             
-        characterChoice = AskChar();
+        characterChoice = AskChar(charsFound);
         statsToFind = AskStat();
 
         if (!statsToFind.Contains("DEN"))
@@ -176,8 +191,39 @@ class Program
             Environment.Exit(0);
         }
     }
+
+    private static string[] FindChars()
+    {
+        var fileContent = File.ReadAllText(filePath);
+        var index = 0;
+        var returnChars = new string[8];
+        string[] charsName;
+        
+        foreach (var charsFound in characters)
+        {
+            if (fileContent.IndexOf(charsFound, StringComparison.Ordinal) != -1)
+            {
+                returnChars[index] = charsFound;
+                index++;
+            }
+        }
+        
+        // Ajout check color pour name
+        
+        charsName = new string[index];
+        for (var i = 0; i < index; i++)
+        {
+            charsName[i] = returnChars[i].Substring(0, returnChars[i].IndexOf('&'));
+        }
+        for (var j=0; j < index; j++)
+        {
+            Console.WriteLine(j + " = " + charsName[j]);
+        }
+        
+        return returnChars;
+    }
     
-    private static string AskChar()
+    private static string AskChar(string[] charsFound)
     {
         fileContent = File.ReadAllText(filePath);
         string characterChoiceStr;
