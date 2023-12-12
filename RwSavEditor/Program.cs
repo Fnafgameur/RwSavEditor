@@ -17,7 +17,7 @@ class Program
     private static int displayValueInt;
     private static Dictionary<int, string> charsFoundDictionary = new();
 
-    private static string[] characters = {
+    private static string[] vanillaCharacters = {
         "Yellow&lt;svA&gt;SEED&lt;svB&gt;",
         "White&lt;svA&gt;SEED&lt;svB&gt;",
         "Red&lt;svA&gt;SEED&lt;svB&gt;",
@@ -25,7 +25,19 @@ class Program
         "Artificer&lt;svA&gt;SEED&lt;svB&gt;",
         "Rivulet&lt;svA&gt;SEED&lt;svB&gt;",
         "Spear&lt;svA&gt;SEED&lt;svB&gt;",
-        "Saint&lt;svA&gt;SEED&lt;svB&gt;"
+        "Saint&lt;svA&gt;SEED&lt;svB&gt;",
+        "Inv&lt;svA&gt;SEED&lt;svB&gt;"
+    };
+    
+    private static string[] moddedCharacters = {
+        "Vinki&lt;svA&gt;SEED&lt;svB&gt;",
+        "darkness&lt;svA&gt;SEED&lt;svB&gt;",
+        "SlugSpore&lt;svA&gt;SEED&lt;svB&gt;",
+        "thedronemaster&lt;svA&gt;SEED&lt;svB&gt;",
+        "Hubert&lt;svA&gt;SEED&lt;svB&gt;",
+        "Photomaniac&lt;svA&gt;SEED&lt;svB&gt;",
+        "Pearlcat&lt;svA&gt;SEED&lt;svB&gt;",
+        "WingCat&lt;svA&gt;SEED&lt;svB&gt;",
     };
         
     public static void Main()
@@ -100,9 +112,9 @@ class Program
          * -Ajouter stats manquantes 🟢
          * -Ajouter Survivor & Hunter 🟢
          * -Ajouter DLC scugs (à tester) 🟢
-         * -Ajouter FORCEPUPS
-         * ---Check if scug is in save
-         * -Ajouter modded scugs ?
+         * -Ajouter FORCEPUPS 🟢
+         * ---Check if scug is in save 🟢
+         * -Ajouter modded scugs ? 🟠
          * ---Ajout scugs name manuellement ?
          * ---Faire en sorte que le nombre de cycle de hunter ne soit pas négatif lors de l'incrémentation de cycles 🟢
          * -Revérifier le code et tester afin de trouver des bugs
@@ -199,12 +211,23 @@ class Program
     {
         var fileContent = File.ReadAllText(filePath);
         var index = 0;
-        var returnChars = new string[8];
+        var returnChars = new string[vanillaCharacters.Length + moddedCharacters.Length];
         string[] charsName;
+        var i = 0;
         
-        foreach (var charsFound in characters)
+        foreach (var charsFound in vanillaCharacters)
         {
-            if (fileContent.IndexOf(charsFound, StringComparison.Ordinal) == -1)
+            if (!fileContent.Contains(charsFound))
+            {
+                continue;
+            }
+            returnChars[index] = charsFound;
+            index++;
+        }
+        
+        foreach (var charsFound in moddedCharacters)
+        {
+            if (!fileContent.Contains(charsFound))
             {
                 continue;
             }
@@ -213,29 +236,13 @@ class Program
         }
         
         charsName = new string[index];
-        for (var i = 0; i < index; i++)
+        for (i = 0; i < index; i++)
         {
             charsName[i] = returnChars[i].Substring(0, returnChars[i].IndexOf('&'));
-
-            switch (charsName[i])
-            {
-                case "Yellow":
-                    charsName[i] = "Monk";
-                    break;
-                case "White":
-                    charsName[i] = "Survivor";
-                    break;
-                case "Red":
-                    charsName[i] = "Hunter";
-                    break;
-                case "Spear":
-                    charsName[i] = "Spearmaster";
-                    break;
-            }
             
             charsFoundDictionary.Add(i, charsName[i]);
         }
-
+        
         if (charsFoundDictionary.Count != 0)
         {
             return;
@@ -251,12 +258,29 @@ class Program
     {
         fileContent = File.ReadAllText(filePath);
         string characterChoiceStr;
+        string charRenamed;
         
         PrintMessage("\nEnter the character's save you want to edit:\n", "ask", true);
 
         foreach (var chars in charsFoundDictionary)
         {
-            Console.WriteLine(chars.Key + " = " + chars.Value);
+            switch (chars.Value)
+            {
+                case "Yellow":
+                    charRenamed = "Monk";
+                    break;
+                case "White":
+                    charRenamed = "Survivor";
+                    break;
+                case "Red":
+                    charRenamed = "Hunter";
+                    break;
+                default:
+                    charRenamed = charsFoundDictionary[chars.Key];
+                    break;
+            }
+            
+            Console.WriteLine(chars.Key + " = " + charRenamed);
         }
         Console.Write("R = Restart the program\n>");
         
@@ -283,7 +307,9 @@ class Program
             return AskChar();
         }
 
-        characterChoiceStr = characters[charsFoundDictionary.Keys.ElementAt(num)];
+        characterChoiceStr = charsFoundDictionary[num];
+
+        Console.WriteLine("char choix : " + characterChoiceStr);
 
         if (fileContent.IndexOf(characterChoiceStr, StringComparison.Ordinal) != -1)
         {
@@ -291,7 +317,6 @@ class Program
         }
         PrintMessage("\nCharacter not found ! Have you saved in his campaign ?", "error", true);
         return AskChar();
-
     }
     
     private static string AskStat()
@@ -367,6 +392,9 @@ class Program
         string returnValue;
         int start;
         int end;
+        character += "&lt;svA&gt;SEED&lt;svB&gt;";
+
+        Console.WriteLine("zob " + character);
         
         start = fileContent.LastIndexOf(character, StringComparison.Ordinal);
         
