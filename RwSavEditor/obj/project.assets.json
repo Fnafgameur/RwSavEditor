@@ -1,40 +1,31 @@
 {
   "version": 3,
   "targets": {
-    "net7.0": {},
-    "net7.0/win-x64": {}
+    "net7.0": {}
   },
   "libraries": {},
   "projectFileDependencyGroups": {
     "net7.0": []
   },
   "packageFolders": {
-    "C:\\Users\\domicile\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\Djimmy\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\domicile\\RiderProjects\\RwSavEditor\\RwSavEditor\\RwSavEditor.csproj",
+      "projectUniqueName": "C:\\Users\\Djimmy\\RiderProjects\\RwSavEditor\\RwSavEditor\\RwSavEditor.csproj",
       "projectName": "RwSavEditor",
-      "projectPath": "C:\\Users\\domicile\\RiderProjects\\RwSavEditor\\RwSavEditor\\RwSavEditor.csproj",
-      "packagesPath": "C:\\Users\\domicile\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\domicile\\RiderProjects\\RwSavEditor\\RwSavEditor\\obj\\",
+      "projectPath": "C:\\Users\\Djimmy\\RiderProjects\\RwSavEditor\\RwSavEditor\\RwSavEditor.csproj",
+      "packagesPath": "C:\\Users\\Djimmy\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Djimmy\\RiderProjects\\RwSavEditor\\RwSavEditor\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\domicile\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\Djimmy\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net7.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -68,12 +59,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.400\\RuntimeIdentifierGraph.json"
-      }
-    },
-    "runtimes": {
-      "win-x64": {
-        "#import": []
+        "runtimeIdentifierGraphPath": "C:\\Users\\Djimmy\\.dotnet\\sdk\\7.0.306\\RuntimeIdentifierGraph.json"
       }
     }
   }

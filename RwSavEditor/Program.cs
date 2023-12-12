@@ -44,22 +44,22 @@ class Program
         {
             Console.Write("Welcome to the Rain World Save Editor !\n" +
                               "This program allows you to edit your save file in order to change stats of your scugs\n");
-            PrintMessage("\n/!\\ Modded scugs are not supported yet /!\\", "error");
-            PrintMessage("/!\\ This project is still in development, even if the program create a backup, create one manually /!\\\n", "error");
-                
+            PrintMessage("\n/!\\ Modded scugs are not supported yet /!\\", "error", true);
+            PrintMessage("/!\\ This project is still in development, even if the program create a backup, create one manually /!\\\n", "error", true);
+            
             do
             {
-                PrintMessage("Provide path to your \"sav\" file (e.g : \"C:/Users/Example/Desktop/sav\" OR \"./sav\" to select in the current directory) : ", "ask");
+                PrintMessage("Provide path to your \"sav\" file (e.g : \"C:/Users/Example/Desktop/sav\" OR \"./sav\" to select in the current directory) : ", "ask", false);
                 filePath = Console.ReadLine();
 
                 if (string.IsNullOrEmpty(filePath))
                 {
-                    PrintMessage("No path provided !", "error");
+                    PrintMessage("\nNo path provided !", "error", true);
                     continue;
                 }
                 if (filePath == "d" || filePath == "debug")
                 {
-                    filePath = "C:\\Users\\domicile\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav_hunter";
+                    filePath = "C:\\Users\\Djimmy\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav-t-pup";
                 }
                 else if (filePath[0] == '.')
                 {
@@ -68,13 +68,13 @@ class Program
                 
                 if (!File.Exists(filePath))
                 {
-                    PrintMessage("File not found !", "error");
+                    PrintMessage("\nFile not found !", "error", true);
                     continue;
                 }
                 
                 if (Path.GetExtension(filePath) != ".sav" && Path.GetExtension(filePath) != "")
                 {
-                    PrintMessage("Incorrect file extension !", "error");
+                    PrintMessage("\nIncorrect file extension !", "error", true);
                     continue;
                 }
                 
@@ -82,12 +82,12 @@ class Program
                 
                 if (!fileContent.StartsWith("<ArrayOfKeyValueOfanyTypeanyType"))
                 {
-                    PrintMessage("Incorrect file !", "error");
+                    PrintMessage("\nIncorrect file !", "error", true);
                 }
             } while (!File.Exists(filePath) || !fileContent.StartsWith("<ArrayOfKeyValueOfanyTypeanyType") || Path.GetExtension(filePath) != ".sav" && Path.GetExtension(filePath) != "");
             
             Console.Write("\nOpened file : ");
-            PrintMessage(filePath + "\n", "ask");
+            PrintMessage(filePath, "ask", true);
             folderPath = Path.GetDirectoryName(filePath);
             CreateBackupSave();
             hasPath = true;
@@ -100,12 +100,14 @@ class Program
          * -Ajouter stats manquantes 🟢
          * -Ajouter Survivor & Hunter 🟢
          * -Ajouter DLC scugs (à tester) 🟢
+         * -Ajouter FORCEPUPS
          * ---Check if scug is in save
          * -Ajouter modded scugs ?
          * ---Ajout scugs name manuellement ?
          * ---Faire en sorte que le nombre de cycle de hunter ne soit pas négatif lors de l'incrémentation de cycles 🟢
          * -Revérifier le code et tester afin de trouver des bugs
          * ---Retester changer valeur string 🟢
+         * ---Refaire système Cycle Hunter
          * -Application sur l'esthétique (formulations des phrases, retour à la ligne, etc...) 🟠
          *
          * -Opti le code
@@ -121,18 +123,18 @@ class Program
         {
             GetIntValue(characterChoice, statsToFind);
             
-            if (statsToFind != ";TOTTIME")
+            if (statsToFind != ";TOTTIME" && statsToFind != ";CyclesSinceSlugpup")
             {
-                PrintMessage("\nCurrent Value : " + displayValue, "warning");
+                PrintMessage("\nCurrent Value : " + displayValue, "warning", true);
             }
-            else
+            else if (statsToFind == ";TOTTIME")
             {
-                PrintMessage("Current Value (in seconds) : " + displayValue, "warning");
+                PrintMessage("Current Value (in seconds) : " + displayValue, "warning", true);
             }
 
             if (statsToFind == ";KARMA")
             {
-                PrintMessage("Karma CAP : " + GetIntValue(characterChoice, ";KARMACAP"), "warning");
+                PrintMessage("Karma CAP : " + GetIntValue(characterChoice, ";KARMACAP"), "warning", true);
             }
             newValue = AskNewValueInt(characterChoice, statsToFind);
 
@@ -175,7 +177,7 @@ class Program
             newValue = AskNewValueStr();
             EditStrValue(characterChoice, statsToFind, newValue);
         }
-        PrintMessage("\nValue changed to : " + displayValue + " with success ! ", "success");
+        PrintMessage("\nValue changed to : " + displayValue + " with success ! ", "success", true);
         Console.WriteLine("\nWould you like to edit another stat ?\n");
         Console.Write("Y/n : ");
         selectedChoice = Console.ReadLine();
@@ -226,6 +228,9 @@ class Program
                 case "Red":
                     charsName[i] = "Hunter";
                     break;
+                case "Spear":
+                    charsName[i] = "Spearmaster";
+                    break;
             }
             
             charsFoundDictionary.Add(i, charsName[i]);
@@ -235,7 +240,7 @@ class Program
         {
             return;
         }
-        PrintMessage("No character found !\nPress Enter to restart the program...", "error");
+        PrintMessage("\nNo character found !\nPress Enter to restart the program...", "error", false);
         Console.ReadLine();
         Console.Clear();
         hasPath = false;
@@ -247,7 +252,7 @@ class Program
         fileContent = File.ReadAllText(filePath);
         string characterChoiceStr;
         
-        PrintMessage("Enter the character's save you want to edit:\n", "ask");
+        PrintMessage("\nEnter the character's save you want to edit:\n", "ask", true);
 
         foreach (var chars in charsFoundDictionary)
         {
@@ -268,13 +273,13 @@ class Program
         
         if (!int.TryParse(characterChoiceStr, out var num))
         {
-            PrintMessage("Enter a valid number !", "error");
+            PrintMessage("\nEnter a valid number !", "error", true);
             return AskChar();
         }
         
         if (num < 0 || num > charsFoundDictionary.Count - 1)
         {
-            PrintMessage("Enter a number between 0 and " + (charsFoundDictionary.Count - 1) + " !", "error");
+            PrintMessage("\nEnter a number between 0 and " + (charsFoundDictionary.Count - 1) + " !", "error", true);
             return AskChar();
         }
 
@@ -284,7 +289,7 @@ class Program
         {
             return characterChoiceStr;
         }
-        PrintMessage("Character not found ! Have you saved in his campaign ?", "error");
+        PrintMessage("\nCharacter not found ! Have you saved in his campaign ?", "error", true);
         return AskChar();
 
     }
@@ -293,7 +298,7 @@ class Program
     {
         string statsToFind;
         
-        PrintMessage("\nEnter the stat you want to edit:", "ask");
+        PrintMessage("\nEnter the stat you want to edit:", "ask", false);
         
         Console.Write("\n\n0 = Number Of Cycle passed" +
                       "\n1 = Number Of Deaths" +
@@ -305,11 +310,10 @@ class Program
                       "\n7 = Karma Level" +
                       "\n8 = Karma CAP" +
                       "\n9 = Reinforce Karma" +
+                      "\n10 = Force pup to spawn this cycle" +
                       "\nC = Cancel" +
                       "\n>");
-        statsToFind = Console.ReadLine();
-        statsToFind = statsToFind.ToUpper();
-        char.TryParse(statsToFind, out chosenValue);
+        statsToFind = Console.ReadLine().ToUpper();
 
         switch (statsToFind) 
         {
@@ -343,15 +347,17 @@ class Program
             case "9":
                 statsToFind = ";REINFORCEDKARMA";
                 break;
+            case "10":
+                statsToFind = ";CyclesSinceSlugpup";
+                break;
             case "C":
                 Console.Clear();
                 Main();
                 break;
             default:
-                PrintMessage("Wrong input !", "error");
+                PrintMessage("\nWrong input !", "error", true);
                 return AskStat();
         }
-
         return statsToFind;
     }
     
@@ -363,9 +369,10 @@ class Program
         int end;
         
         start = fileContent.LastIndexOf(character, StringComparison.Ordinal);
+        
         if (start == -1)
         {
-            PrintMessage("Value Not Found !", "error");
+            PrintMessage("\nValue Not Found !", "error", true);
             return "";
         }
 
@@ -374,6 +381,7 @@ class Program
         returnValue = FindInt(end);
         
         displayValue = returnValue;
+        
         if (!character.Contains("Red") || valueToFind != ";CYCLENUM")
         {
             return returnValue;
@@ -405,13 +413,16 @@ class Program
         switch (stat)
         {
             case ";TOTTIME":
-                PrintMessage("\nEnter the new value (in seconds) (enter C to cancel) : ", "ask");
+                PrintMessage("\nEnter the new value (in seconds) (enter C to cancel) : ", "ask", false);
                 break;
             case ";REINFORCEDKARMA":
-                PrintMessage("\nEnter the new value (0 or 1) (enter C to cancel) : ", "ask");
+                PrintMessage("\nEnter the new value (0 or 1) (enter C to cancel) : ", "ask", false);
+                break;
+            case ";CyclesSinceSlugpup":
+                PrintMessage("\nEnter the new value (0 or 1) (enter C to cancel) : ", "ask", false);
                 break;
             default:
-                PrintMessage("\nEnter the new value (enter C to cancel) : ", "ask");
+                PrintMessage("\nEnter the new value (enter C to cancel) : ", "ask", false);
                 break;
         }
         
@@ -425,23 +436,32 @@ class Program
         }
         if (!int.TryParse(newValue, out var num))
         {
-            PrintMessage("Enter an integer number !", "error");
+            PrintMessage("\nEnter an integer number !", "error", true);
             return AskNewValueInt(character, stat);
         }
             
         if (num < 0 && stat != ";CYCLENUM")
         {
-            PrintMessage("Number must be positive !", "error");
+            PrintMessage("\nNumber must be positive !", "error", true);
             return AskNewValueInt(character, stat);
         }
 
-        if (stat == ";REINFORCEDKARMA" && num != 0 && num != 1)
+        if ((stat == ";REINFORCEDKARMA" || stat == ";CyclesSinceSlugpup") && num != 0 && num != 1)
         {
-            PrintMessage("Number must be either 0 or 1 !", "error");
+            PrintMessage("\nNumber must be either 0 or 1 !", "error", true);
             return AskNewValueInt(character, stat);
         }
         
         displayValue = newValue;
+        
+        if (num == 0 && stat == ";CyclesSinceSlugpup")
+        {
+            newValue = "0";
+        }
+        else
+        {
+            newValue = "100";
+        }
 
         if (!character.Contains("Red") || stat != ";CYCLENUM")
         {
@@ -458,9 +478,9 @@ class Program
     {
         string newValue;
         
-        PrintMessage("\nEnter the new value ", "ask");
-        PrintMessage("\n/!\\ make sure that it is a valid DEN Room, use the interactive map to get the name of the den you want /!\\ ", "error");
-        PrintMessage("(enter C to cancel) : ", "ask");
+        PrintMessage("\nEnter the new value ", "ask", false);
+        PrintMessage("/!\\ make sure that it is a valid DEN Room, use the interactive map to get the name of the den you want /!\\ ", "error", false);
+        PrintMessage("(enter C to cancel) : ", "ask", false);
         
         newValue = Console.ReadLine();
         newValue = newValue.ToUpper();
@@ -476,7 +496,7 @@ class Program
         {
             return newValue;
         }
-        PrintMessage("Enter a valid room (example : SU_S01) !", "error");
+        PrintMessage("\nEnter a valid room (example : SU_S01) !", "error", true);
         return AskNewValueStr();
     }
     
@@ -492,7 +512,7 @@ class Program
         start = fileContent.LastIndexOf(character, StringComparison.Ordinal);
         if (start == -1)
         {
-            PrintMessage("Value Not Found !", "error");
+            PrintMessage("\nValue Not Found !", "error", true);
             return "";
         }
 
@@ -547,7 +567,7 @@ class Program
         }
         return returnValue;
     }
-    
+
     private static void CreateBackupSave()
     {
         string origFilePath;
@@ -560,8 +580,8 @@ class Program
             string choice;
                 
             Console.Write("Backup save already exists in ");
-            PrintMessage(folderPath, "info");
-            Console.Write("Would you like to overwrite it ?\n\ny/N : ");
+            PrintMessage(folderPath, "info", false);
+            Console.Write("\n\nWould you like to overwrite it ?\n\ny/N : ");
             choice = Console.ReadLine();
             choice = choice.ToUpper();
             char.TryParse(choice, out chosenValue);
@@ -569,11 +589,11 @@ class Program
             {
                 // Overwrite the backup save
                 File.WriteAllText(origFilePath, File.ReadAllText(filePath));
-                PrintMessage("\nBackup save overwritten !\n", "success");
+                PrintMessage("\nBackup save overwritten !", "success", true);
             }
             else
             {
-                PrintMessage("\nBackup save not created !\n", "success");
+                PrintMessage("\nBackup save not created !", "success", true);
             }
         }
         else
@@ -581,11 +601,11 @@ class Program
             // Create a backup save
             File.Create(origFilePath).Dispose();
             File.WriteAllText(origFilePath, File.ReadAllText(filePath));
-            PrintMessage("Backup save created !\n", "success");
+            PrintMessage("\nBackup save created !", "success", true);
         }
     }
     
-    private static void PrintMessage(string message, string messageType)
+    private static void PrintMessage(string message, string messageType, bool line)
     {
         Console.ForegroundColor = messageType switch
         {
@@ -596,7 +616,15 @@ class Program
             "ask" => ConsoleColor.DarkCyan,
             _ => ConsoleColor.White
         };
-        Console.WriteLine("\n" + message + "\n");
+        if (!line)
+        {
+            Console.Write(message);
+        }
+        else
+        {
+            Console.WriteLine(message);
+        }
+
         Console.ResetColor();
         Thread.Sleep(360);
     }
