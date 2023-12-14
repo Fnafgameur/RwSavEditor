@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.ComponentModel;
+using System.Drawing;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -9,7 +10,7 @@ class Program
     private static string filePath = "";
     private static string folderPath = "";
     private static string fileContent = "";
-        
+    
     private static char chosenValue = ' ';
     private static string pattern = "([A-Z]{2}_[A-Z][0-9]{2})";
     private static bool hasPath;
@@ -39,7 +40,7 @@ class Program
         "Pearlcat&lt;svA&gt;SEED&lt;svB&gt;",
         "WingCat&lt;svA&gt;SEED&lt;svB&gt;",
     };
-        
+    
     public static void Main()
     {
         string characterChoice;
@@ -47,7 +48,7 @@ class Program
         string valueReturned;
         string newValue;
         string selectedChoice;
-            
+        
         const int maxKarma = 9;
         
         charsFoundDictionary.Clear();
@@ -71,12 +72,14 @@ class Program
                 }
                 if (filePath == "d" || filePath == "debug")
                 {
-                    filePath = "C:\\Users\\Djimmy\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav-t-pup";
+                    filePath = "C:\\Users\\domicile\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav_t_fp";
                 }
                 else if (filePath[0] == '.')
                 {
                     filePath = Directory.GetCurrentDirectory() + filePath.Substring(1);
                 }
+                
+                filePath = filePath.Replace("\"", "");
                 
                 if (!File.Exists(filePath))
                 {
@@ -119,8 +122,11 @@ class Program
          * ---Faire en sorte que le nombre de cycle de hunter ne soit pas négatif lors de l'incrémentation de cycles 🟢
          * -Revérifier le code et tester afin de trouver des bugs
          * ---Retester changer valeur string 🟢
-         * ---Refaire système Cycle Hunter
+         * ---Refaire système Cycle Hunter 🟢
          * -Application sur l'esthétique (formulations des phrases, retour à la ligne, etc...) 🟠
+         * ---Ajouter des couleurs 🟢
+         * ---Refaire message intro
+         * ---Faire message de fin 
          *
          * -Opti le code
          * -Ajouter des commentaires
@@ -282,7 +288,7 @@ class Program
             
             Console.WriteLine(chars.Key + " = " + charRenamed);
         }
-        Console.Write("R = Restart the program\n>");
+        Console.Write("\nR = Restart the program\n>");
         
         characterChoiceStr = Console.ReadLine();
         characterChoiceStr = characterChoiceStr.ToUpper();
@@ -393,8 +399,6 @@ class Program
         int start;
         int end;
         character += "&lt;svA&gt;SEED&lt;svB&gt;";
-
-        Console.WriteLine("zob " + character);
         
         start = fileContent.LastIndexOf(character, StringComparison.Ordinal);
         
@@ -486,15 +490,19 @@ class Program
         {
             newValue = "0";
         }
-        else
+        else if (num == 1 && stat == ";CyclesSinceSlugpup")
         {
             newValue = "100";
         }
+
+        Console.WriteLine(newValue + " a");
 
         if (!character.Contains("Red") || stat != ";CYCLENUM")
         {
             return newValue;
         }
+        
+        Console.WriteLine(newValue + " b");
         
         int.TryParse(newValue, out newValueInt);
         newValue = (19 - newValueInt).ToString();
@@ -536,8 +544,10 @@ class Program
         int start;
         int end;
         int index;
+        character += "&lt;svA&gt;SEED&lt;svB&gt;";
         
         start = fileContent.LastIndexOf(character, StringComparison.Ordinal);
+        
         if (start == -1)
         {
             PrintMessage("\nValue Not Found !", "error", true);
@@ -545,8 +555,13 @@ class Program
         }
 
         end = fileContent.IndexOf(valueToFind, start, StringComparison.Ordinal) + valueToFind.Length;
-            
+
+        Console.WriteLine("end : " + end);
+        Console.WriteLine("end text : " + fileContent[end]);
+
         numberStr = FindInt(end);
+
+        Console.WriteLine(numberStr + " c");
             
         index = fileContent.IndexOf(numberStr, end, StringComparison.Ordinal);
         replaced = fileContent.Substring(0, index) + newValue + fileContent.Substring(index + numberStr.Length);
@@ -557,6 +572,7 @@ class Program
     
     private static void EditStrValue(string character, string valueToFind, string newValue)
     {
+        character += "&lt;svA&gt;SEED&lt;svB&gt;";
         fileContent = File.ReadAllText(filePath);
         var start = fileContent.LastIndexOf(character, StringComparison.Ordinal);
         var end = fileContent.IndexOf(valueToFind, start, StringComparison.Ordinal) + valueToFind.Length;
@@ -654,6 +670,10 @@ class Program
         }
 
         Console.ResetColor();
+        if (messageType != "error" && messageType != "success")
+        {
+            return;
+        }
         Thread.Sleep(360);
     }
 }
