@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-using System.Drawing;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 
 namespace RwSavEditor;
@@ -12,7 +10,7 @@ class Program
     private static string fileContent = "";
     
     private static char chosenValue = ' ';
-    private static string denPattern = "([A-Z]{2}_[A-Z][0-9]{2})";
+    private static string pattern = "([A-Z]{2}_[A-Z][0-9]{2})";
     private static bool hasPath;
     private static string displayValue;
     private static int displayValueInt;
@@ -72,7 +70,7 @@ class Program
                 }
                 if (filePath == "d" || filePath == "debug")
                 {
-                    filePath = "C:\\Users\\domicile\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav_mark";
+                    filePath = "C:\\Users\\domicile\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav_t_fp";
                 }
                 else if (filePath[0] == '.')
                 {
@@ -126,9 +124,7 @@ class Program
          * -Application sur l'esthétique (formulations des phrases, retour à la ligne, etc...) 🟠
          * ---Ajouter des couleurs 🟢
          * ---Refaire message intro
-         * ---Faire message de fin
-         *
-         * - Ajouter "dpA&gt;HASTHEMARK&lt;"
+         * ---Faire message de fin 
          *
          * -Opti le code
          * -Ajouter des commentaires
@@ -139,7 +135,7 @@ class Program
         characterChoice = AskChar();
         statsToFind = AskStat();
 
-        if (!statsToFind.Contains("DEN") && !statsToFind.Contains("MARK"))
+        if (!statsToFind.Contains("DEN"))
         {
             GetIntValue(characterChoice, statsToFind);
             
@@ -194,15 +190,7 @@ class Program
         {
             valueReturned = GetStrValue(characterChoice, statsToFind);
             Console.WriteLine("Initial Value : " + valueReturned);
-            if (statsToFind.Contains("DEN"))
-            {
-                newValue = AskNewValueStr();
-            }
-            else
-            {
-                newValue = AskNewValueInt(characterChoice, statsToFind);
-            }
-          
+            newValue = AskNewValueStr();
             EditStrValue(characterChoice, statsToFind, newValue);
         }
         PrintMessage("\nValue changed to : " + displayValue + " with success ! ", "success", true);
@@ -352,7 +340,6 @@ class Program
                       "\n8 = Karma CAP" +
                       "\n9 = Reinforce Karma" +
                       "\n10 = Force pup to spawn this cycle" +
-                      "\n11 = Has communication mark" +
                       "\nC = Cancel" +
                       "\n>");
         statsToFind = Console.ReadLine().ToUpper();
@@ -391,9 +378,6 @@ class Program
                 break;
             case "10":
                 statsToFind = ";CyclesSinceSlugpup";
-                break;
-            case "11":
-                statsToFind = "dpA&gt;HASTHEMARK&lt;";
                 break;
             case "C":
                 Console.Clear();
@@ -445,18 +429,10 @@ class Program
         fileContent = File.ReadAllText(filePath);
         var start = fileContent.LastIndexOf(character, StringComparison.Ordinal);
         var end = fileContent.IndexOf(valueToFind, start, StringComparison.Ordinal) + valueToFind.Length;
-        Regex regex;
-        Match match;
-        if (valueToFind.Contains("DEN"))
-        {
-            regex = new Regex(denPattern);
-            match = regex.Match(fileContent, end);
-            return match.Groups[1].Value;
-        }
-        regex = new Regex("dpA&gt;HASTHEMARK&lt;");
-        match = regex.Match(fileContent, end);
-        var returnValue = match.Success ? "1" : "0";
-        return returnValue;
+        var regex = new Regex(pattern);
+        var match = regex.Match(fileContent, end);
+            
+        return match.Groups[1].Value;
     }
 
     private static string AskNewValueInt(string character, string stat)
@@ -475,10 +451,6 @@ class Program
             case ";CyclesSinceSlugpup":
                 PrintMessage("\nEnter the new value (0 or 1) (enter C to cancel) : ", "ask", false);
                 break;
-            case ";HASTHEMARK":
-                PrintMessage("\nEnter the new value (0 or 1) (enter C to cancel) : ", "ask", false);
-                break;
-            
             default:
                 PrintMessage("\nEnter the new value (enter C to cancel) : ", "ask", false);
                 break;
@@ -552,7 +524,7 @@ class Program
             Console.Clear();
             Main();
         }
-        var regex = new Regex(denPattern);
+        var regex = new Regex(pattern);
         var match = regex.Match(newValue);
         if (match.Success)
         {
@@ -602,7 +574,7 @@ class Program
         fileContent = File.ReadAllText(filePath);
         var start = fileContent.LastIndexOf(character, StringComparison.Ordinal);
         var end = fileContent.IndexOf(valueToFind, start, StringComparison.Ordinal) + valueToFind.Length;
-        var regex = new Regex(denPattern);
+        var regex = new Regex(pattern);
         var match = regex.Match(fileContent, end);
         var replaced = fileContent.Substring(0, match.Index) + newValue + fileContent.Substring(match.Index + match.Length);
         displayValue = newValue;
