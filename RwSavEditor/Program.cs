@@ -68,11 +68,13 @@ class Program
                     PrintMessage("\nNo path provided !", "error", true);
                     continue;
                 }
+                
                 if (filePath == "d" || filePath == "debug")
                 {
-                    filePath = "C:\\Users\\domicile\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav_t_fp";
+                    filePath = "C:\\Users\\Djimmy\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav_all";
                 }
-                else if (filePath[0] == '.')
+                
+                if (filePath[0] == '.')
                 {
                     filePath = Directory.GetCurrentDirectory() + filePath.Substring(1);
                 }
@@ -90,16 +92,27 @@ class Program
                     PrintMessage("\nIncorrect file extension !", "error", true);
                     continue;
                 }
+
+                fileContent = File.ReadAllText(filePath);
                 
-                fileContent = File.ReadAllText(filePath).Substring(0, 32);
+                if (string.IsNullOrEmpty(fileContent))
+                {
+                    PrintMessage("\nFile is empty !", "error", true);
+                    continue;
+                }
+                
+                fileContent = fileContent.Substring(0, 32);
+                
                 
                 if (!fileContent.StartsWith("<ArrayOfKeyValueOfanyTypeanyType"))
                 {
                     PrintMessage("\nIncorrect file !", "error", true);
                 }
+                
             } while (!File.Exists(filePath) || !fileContent.StartsWith("<ArrayOfKeyValueOfanyTypeanyType") || Path.GetExtension(filePath) != ".sav" && Path.GetExtension(filePath) != "");
             
             Console.Write("\nOpened file : ");
+            filePath = filePath.Replace("/", "\\");
             PrintMessage(filePath, "ask", true);
             folderPath = Path.GetDirectoryName(filePath);
             CreateBackupSave();
@@ -431,7 +444,7 @@ class Program
         var end = fileContent.IndexOf(valueToFind, start, StringComparison.Ordinal) + valueToFind.Length;
         var regex = new Regex(pattern);
         var match = regex.Match(fileContent, end);
-            
+        
         return match.Groups[1].Value;
     }
 
@@ -459,6 +472,7 @@ class Program
         newValue = Console.ReadLine();
         newValue = newValue.ToUpper();
         char.TryParse(newValue, out chosenValue);
+        newValue.Trim();
         if (chosenValue == 'C')
         {
             Console.Clear();
@@ -493,14 +507,10 @@ class Program
             newValue = "100";
         }
 
-        Console.WriteLine(newValue + " a");
-
         if (!character.Contains("Red") || stat != ";CYCLENUM")
         {
             return newValue;
         }
-        
-        Console.WriteLine(newValue + " b");
         
         int.TryParse(newValue, out newValueInt);
         newValue = (19 - newValueInt).ToString();
@@ -554,12 +564,7 @@ class Program
 
         end = fileContent.IndexOf(valueToFind, start, StringComparison.Ordinal) + valueToFind.Length;
 
-        Console.WriteLine("end : " + end);
-        Console.WriteLine("end text : " + fileContent[end]);
-
         numberStr = FindInt(end);
-
-        Console.WriteLine(numberStr + " c");
             
         index = fileContent.IndexOf(numberStr, end, StringComparison.Ordinal);
         replaced = fileContent.Substring(0, index) + newValue + fileContent.Substring(index + numberStr.Length);
