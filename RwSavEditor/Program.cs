@@ -134,6 +134,7 @@ class Program
          * -Revérifier le code et tester afin de trouver des bugs
          * ---Retester changer valeur string 🟢
          * ---Refaire système Cycle Hunter 🟢
+         * * ---Check pourquoi on ne peut pas forcer le spawn de pup si on en a déjà un 🟠
          * -Application sur l'esthétique (formulations des phrases, retour à la ligne, etc...) 🟠
          * ---Ajouter des couleurs 🟢
          * ---Refaire message intro
