@@ -342,20 +342,22 @@ class Program
         
         PrintMessage("\nEnter the stat you want to edit:", "ask", false);
         
-        Console.Write("\n\n0 = Number Of Cycle passed" +
-                      "\n1 = Number Of Deaths" +
-                      "\n2 = Number Of Cycle survived" +
-                      "\n3 = Number Of Cycle abandonned" +
+        Console.Write("\n\n0 = Number of cycle passed" +
+                      "\n1 = Number of deaths" +
+                      "\n2 = Number of cycle survived" +
+                      "\n3 = Number of cycle abandonned" +
                       "\n4 = Time passed" +
-                      "\n5 = Number of food" +
-                      "\n6 = Position of current den" +
-                      "\n7 = Karma Level" +
-                      "\n8 = Karma CAP" +
-                      "\n9 = Reinforce Karma" +
-                      "\n10 = Force pup to spawn this cycle" +
+                      "\n5 = Total number of foods eaten" +
+                      "\n6 = Number of food" +
+                      "\n7 = Position of current den" +
+                      "\n8 = Karma level" +
+                      "\n9 = Karma CAP" +
+                      "\n10 = Reinforce karma" +
+                      "\n11 = Force pup to spawn this cycle" +
                       "\nC = Cancel" +
                       "\n>");
-        statsToFind = Console.ReadLine().ToUpper();
+        statsToFind = Console.ReadLine().ToUpper().Trim();
+        char.TryParse(statsToFind, out chosenValue);
 
         switch (statsToFind) 
         {
@@ -375,21 +377,24 @@ class Program
                 statsToFind = ";TOTTIME";
                 break;
             case "5":
-                statsToFind = ";FOOD";
+                statsToFind = ";TOTFOOD";
                 break;
             case "6":
-                statsToFind = ";DENPOS";
+                statsToFind = ";FOOD";
                 break;
             case "7":
-                statsToFind = ";KARMA";
+                statsToFind = ";DENPOS";
                 break;
             case "8":
-                statsToFind = ";KARMACAP";
+                statsToFind = ";KARMA";
                 break;
             case "9":
-                statsToFind = ";REINFORCEDKARMA";
+                statsToFind = ";KARMACAP";
                 break;
             case "10":
+                statsToFind = ";REINFORCEDKARMA";
+                break;
+            case "11":
                 statsToFind = ";CyclesSinceSlugpup";
                 break;
             case "C":
@@ -469,10 +474,8 @@ class Program
                 break;
         }
         
-        newValue = Console.ReadLine();
-        newValue = newValue.ToUpper();
+        newValue = Console.ReadLine().ToUpper().Trim();
         char.TryParse(newValue, out chosenValue);
-        newValue.Trim();
         if (chosenValue == 'C')
         {
             Console.Clear();
@@ -526,8 +529,7 @@ class Program
         PrintMessage("/!\\ make sure that it is a valid DEN Room, use the interactive map to get the name of the den you want /!\\ ", "error", false);
         PrintMessage("(enter C to cancel) : ", "ask", false);
         
-        newValue = Console.ReadLine();
-        newValue = newValue.ToUpper();
+        newValue = Console.ReadLine().ToUpper().Trim();
         char.TryParse(newValue, out chosenValue);
         if (chosenValue == 'C')
         {
@@ -640,7 +642,7 @@ class Program
             }
             else
             {
-                PrintMessage("\nBackup save not created !", "success", true);
+                PrintMessage("\nBackup save not overwritten !", "error", true);
             }
         }
         else
