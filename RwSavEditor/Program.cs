@@ -53,14 +53,21 @@ class Program
             
         if (!hasPath)
         {
-            Console.Write("Welcome to the Rain World Save Editor !\n" +
-                              "This program allows you to edit your save file in order to change stats of your scugs\n");
+            Console.WriteLine("  _____            _____             ______    _ _ _             ");
+            Console.WriteLine(" |  __ \\          / ____|           |  ____|  | (_) |            ");
+            Console.WriteLine(" | |__) |_      _| (___   __ ___   _| |__   __| |_| |_ ___  _ __ ");
+            Console.WriteLine(" |  _  /\\ \\ /\\ / /\\___ \\ / _` \\ \\ / /  __| / _` | | __/ _ \\| '__|");
+            Console.WriteLine(" | | \\ \\ \\ V  V / ____) | (_| |\\ V /| |___| (_| | | || (_) | |   ");
+            Console.WriteLine(" |_|  \\_\\ \\_/\\_/ |_____/ \\__,_| \\_/ |______\\__,_|_|\\__\\___/|_|   ");
+            Console.WriteLine("                                                                 ");
+            Console.Write("                                                                 ");
             PrintMessage("\n/!\\ Modded scugs are not supported yet /!\\", "error", true);
-            PrintMessage("/!\\ This project is still in development, even if the program create a backup, create one manually /!\\\n", "error", true);
+            PrintMessage("/!\\ This project is still in development, even if the program create a backup itself, create one manually /!\\\n", "error", true);
             
             do
             {
-                PrintMessage("Provide path to your \"sav\" file (e.g : \"C:/Users/Example/Desktop/sav\" OR \"./sav\" to select in the current directory) : ", "ask", false);
+                PrintMessage("Provide path to your \"sav\" file e.g : \"C:/Users/Example/Desktop/sav\" OR \"./sav\" to select in the current directory\nOR \"find\" to search in the default location", "ask", true);
+                Console.Write(">");
                 filePath = Console.ReadLine();
 
                 if (string.IsNullOrEmpty(filePath))
@@ -72,6 +79,14 @@ class Program
                 if (filePath == "d" || filePath == "debug")
                 {
                     filePath = "C:\\Users\\Djimmy\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav_all";
+                }
+                else if (filePath == "find")
+                {
+                    //Get locallow folder 
+                    string folderFromUserProfile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "LocalLow");
+                    filePath = folderFromUserProfile + "\\Videocult\\Rain World\\sav";
+                    
+                    Console.WriteLine("\nDefault location : " + filePath);
                 }
                 
                 if (filePath[0] == '.')
@@ -128,20 +143,25 @@ class Program
          * -Ajouter DLC scugs (à tester) 🟢
          * -Ajouter FORCEPUPS 🟢
          * ---Check if scug is in save 🟢
-         * -Ajouter modded scugs ? 🟠
+         * -Ajouter modded scugs ? 🟢
          * ---Ajout scugs name manuellement ?
          * ---Faire en sorte que le nombre de cycle de hunter ne soit pas négatif lors de l'incrémentation de cycles 🟢
-         * -Revérifier le code et tester afin de trouver des bugs
+         * -Revérifier le code et tester afin de trouver des bugs 🟠
          * ---Retester changer valeur string 🟢
          * ---Refaire système Cycle Hunter 🟢
          * * ---Check pourquoi on ne peut pas forcer le spawn de pup si on en a déjà un 🟠
-         * -Application sur l'esthétique (formulations des phrases, retour à la ligne, etc...) 🟠
+         * -Application sur l'esthétique (formulations des phrases, retour à la ligne, etc...) 🔵
          * ---Ajouter des couleurs 🟢
-         * ---Refaire message intro
-         * ---Faire message de fin 
+         * ---Refaire message intro 🟢
+         * ---Faire message de fin 🟢
          *
          * -Opti le code
          * -Ajouter des commentaires
+         *
+         * 
+         * 🟢 = Fini
+         * 🔵 = Fini mais sujet à modification
+         * 🟠 = En cours
          */
         
         FindChars();
@@ -220,8 +240,7 @@ class Program
         }
         else
         {
-            Console.WriteLine("Goodbye !");
-            Environment.Exit(0);
+            EndProgram();
         }
     }
 
@@ -278,7 +297,7 @@ class Program
         string characterChoiceStr;
         string charRenamed;
         
-        PrintMessage("\nEnter the character's save you want to edit:\n", "ask", true);
+        PrintMessage("\nEnter the character's campaign you want to edit:\n", "ask", true);
 
         foreach (var chars in charsFoundDictionary)
         {
@@ -293,6 +312,9 @@ class Program
                 case "Red":
                     charRenamed = "Hunter";
                     break;
+                case "Spear":
+                    charRenamed = "Spearmaster";
+                    break;
                 default:
                     charRenamed = charsFoundDictionary[chars.Key];
                     break;
@@ -300,10 +322,11 @@ class Program
             
             Console.WriteLine(chars.Key + " = " + charRenamed);
         }
-        Console.Write("\nR = Restart the program\n>");
+        Console.WriteLine("\nR = Restart the program");
+        Console.Write("Q = Exit the program\n>");
         
         characterChoiceStr = Console.ReadLine();
-        characterChoiceStr = characterChoiceStr.ToUpper();
+        characterChoiceStr = characterChoiceStr.ToUpper().Trim();
         char.TryParse(characterChoiceStr, out chosenValue);
         
         if (chosenValue == 'R')
@@ -311,6 +334,11 @@ class Program
             Console.Clear();
             hasPath = false;
             Main();
+        }
+
+        if (chosenValue == 'Q')
+        {
+            EndProgram();
         }
         
         if (!int.TryParse(characterChoiceStr, out var num))
@@ -326,8 +354,6 @@ class Program
         }
 
         characterChoiceStr = charsFoundDictionary[num];
-
-        Console.WriteLine("char choix : " + characterChoiceStr);
 
         if (fileContent.IndexOf(characterChoiceStr, StringComparison.Ordinal) != -1)
         {
@@ -651,21 +677,34 @@ class Program
             // Create a backup save
             File.Create(origFilePath).Dispose();
             File.WriteAllText(origFilePath, File.ReadAllText(filePath));
-            PrintMessage("\nBackup save created !", "success", true);
+            PrintMessage("\nBackup save created in " + folderPath, "success", true);
         }
     }
     
     private static void PrintMessage(string message, string messageType, bool line)
-    {
-        Console.ForegroundColor = messageType switch
+    { 
+        switch (messageType)
         {
-            "error" => ConsoleColor.Red,
-            "success" => ConsoleColor.Green,
-            "warning" => ConsoleColor.DarkYellow,
-            "info" => ConsoleColor.Cyan,
-            "ask" => ConsoleColor.DarkCyan,
-            _ => ConsoleColor.White
-        };
+            case "error":
+                Console.ForegroundColor = ConsoleColor.Red;
+                break;
+            case "success":
+                Console.ForegroundColor = ConsoleColor.Green;
+                break;
+            case "warning":
+                Console.ForegroundColor = ConsoleColor.DarkYellow;
+                break;
+            case "info":
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                break;
+            case "ask":
+                Console.ForegroundColor = ConsoleColor.DarkCyan;
+                break;
+            default:
+                Console.ForegroundColor = ConsoleColor.White;
+                break;
+        }
+        
         if (!line)
         {
             Console.Write(message);
@@ -681,5 +720,12 @@ class Program
             return;
         }
         Thread.Sleep(360);
+    }
+    
+    private static void EndProgram()
+    {
+        PrintMessage("\nThank you for using RwSavEditor !\nPress Enter to exit...", "info", false);
+        Console.ReadLine();
+        Environment.Exit(0);
     }
 }

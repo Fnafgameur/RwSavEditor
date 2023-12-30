@@ -1,4 +1,4 @@
-Pour reload la save afin que les effets du save editor s'applique :
+Pour reload la save afin que les effets du save editor s'appliquent :
 
 - Relancer complètement son jeu
 - Switch de save dans les options (exemple : save editor a modifié sur save 1 alors, switch sur save 2 et revenir sur save 1)
