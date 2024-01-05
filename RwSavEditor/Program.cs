@@ -47,8 +47,6 @@ class Program
         string newValue;
         string selectedChoice;
         
-        const int maxKarma = 9;
-        
         charsFoundDictionary.Clear();
             
         if (!hasPath)
@@ -171,7 +169,7 @@ class Program
 
         if (!statsToFind.Contains("DEN"))
         {
-            GetIntValue(characterChoice, statsToFind);
+            GetIntValue(characterChoice, statsToFind, false);
             
             if (statsToFind != ";TOTTIME" && statsToFind != ";CyclesSinceSlugpup")
             {
@@ -184,18 +182,13 @@ class Program
 
             if (statsToFind == ";KARMA")
             {
-                PrintMessage("Karma CAP : " + GetIntValue(characterChoice, ";KARMACAP"), "warning", true);
+                PrintMessage("Karma CAP : " + GetIntValue(characterChoice, ";KARMACAP", true), "warning", true);
             }
             newValue = AskNewValueInt(characterChoice, statsToFind);
 
             if (statsToFind == ";KARMA")
             {
-                var karmaCap = GetIntValue(characterChoice, ";KARMACAP");
-                if (int.Parse(newValue) > maxKarma)
-                {
-                    Console.WriteLine("Karma level can't be higher than 9 !");
-                    newValue = AskNewValueInt(characterChoice, statsToFind);
-                }
+                var karmaCap = GetIntValue(characterChoice, ";KARMACAP", true);
 
                 if (int.Parse(newValue) > int.Parse(karmaCap))
                 {
@@ -209,11 +202,11 @@ class Program
                     char.TryParse(choice, out chosenValue);
                     if (chosenValue is 'Y' or '\0' or ' ')
                     {
-                        Console.WriteLine(EditIntValue(characterChoice, ";KARMACAP", newValue));
+                        EditIntValue(characterChoice, ";KARMACAP", newValue);
                     }
                     else
                     {
-                        Console.WriteLine("\nKarma level not changed !\n");
+                        PrintMessage("\nKarma level not changed !", "error", true);
                         Main();
                     }
                 }
@@ -223,7 +216,7 @@ class Program
         else
         {
             valueReturned = GetStrValue(characterChoice, statsToFind);
-            Console.WriteLine("Initial Value : " + valueReturned);
+            PrintMessage("\nCurrent Value : " + valueReturned, "warning", true);
             newValue = AskNewValueStr();
             EditStrValue(characterChoice, statsToFind, newValue);
         }
@@ -435,7 +428,7 @@ class Program
         return statsToFind;
     }
     
-    private static string GetIntValue(string character, string valueToFind)
+    private static string GetIntValue(string character, string valueToFind, bool isAuto)
     {
         var fileContent = File.ReadAllText(filePath);
         string returnValue;
@@ -454,8 +447,11 @@ class Program
         end = fileContent.IndexOf(valueToFind, start, StringComparison.Ordinal) + valueToFind.Length;
         
         returnValue = FindInt(end);
-        
-        displayValue = returnValue;
+
+        if (!isAuto)
+        {
+            displayValue = returnValue;
+        }
         
         if (!character.Contains("Red") || valueToFind != ";CYCLENUM")
         {
@@ -484,20 +480,24 @@ class Program
     {
         string newValue;
         int newValueInt;
+        int num;
+        var isNum = false;
+        
+        const int maxKarma = 9;
         
         switch (stat)
         {
             case ";TOTTIME":
                 PrintMessage("\nEnter the new value (in seconds) (enter C to cancel) : ", "ask", false);
+                isNum = true;
                 break;
             case ";REINFORCEDKARMA":
-                PrintMessage("\nEnter the new value (0 or 1) (enter C to cancel) : ", "ask", false);
-                break;
             case ";CyclesSinceSlugpup":
-                PrintMessage("\nEnter the new value (0 or 1) (enter C to cancel) : ", "ask", false);
+                PrintMessage("\nEnter the new value (Yes or No) (enter C to cancel) : ", "ask", false);
                 break;
             default:
                 PrintMessage("\nEnter the new value (enter C to cancel) : ", "ask", false);
+                isNum = true;
                 break;
         }
         
@@ -508,33 +508,66 @@ class Program
             Console.Clear();
             Main();
         }
-        if (!int.TryParse(newValue, out var num))
+
+        if (isNum)
         {
-            PrintMessage("\nEnter an integer number !", "error", true);
-            return AskNewValueInt(character, stat);
-        }
+            if (!int.TryParse(newValue, out num))
+            {
+                PrintMessage("\nEnter an integer number !", "error", true);
+                return AskNewValueInt(character, stat);
+            }
             
-        if (num < 0 && stat != ";CYCLENUM")
+            if (num < 0 && stat != ";CYCLENUM")
+            {
+                PrintMessage("\nNumber must be positive !", "error", true);
+                return AskNewValueInt(character, stat);
+            }
+            
+            if (num > maxKarma && (stat == ";KARMA" || stat == ";KARMACAP"))
+            {
+                PrintMessage("\nKarma level can't be higher than 9 !", "error", true);
+                return AskNewValueInt(character, stat);
+            }
+        }
+
+        newValue = newValue.ToUpper();
+
+        if ((stat == ";REINFORCEDKARMA" || stat == ";CyclesSinceSlugpup") && newValue != "YES" && newValue != "NO" && newValue != "Y" && newValue != "N")
         {
-            PrintMessage("\nNumber must be positive !", "error", true);
+            PrintMessage("\nValue must be either Yes or No !", "error", true);
             return AskNewValueInt(character, stat);
         }
 
-        if ((stat == ";REINFORCEDKARMA" || stat == ";CyclesSinceSlugpup") && num != 0 && num != 1)
+        switch (newValue)
         {
-            PrintMessage("\nNumber must be either 0 or 1 !", "error", true);
-            return AskNewValueInt(character, stat);
+            case "YES":
+            case "Y":
+                displayValue = "Yes";
+                break;
+            case "NO":
+            case "N":
+                displayValue = "No";
+                break;
+            default:
+                displayValue = newValue;
+                break;
         }
         
-        displayValue = newValue;
-        
-        if (num == 0 && stat == ";CyclesSinceSlugpup")
+        if ((newValue == "N" || newValue == "NO") && (stat == ";CyclesSinceSlugpup" || stat == ";REINFORCEDKARMA"))
         {
             newValue = "0";
         }
-        else if (num == 1 && stat == ";CyclesSinceSlugpup")
+        
+        else if ((newValue == "Y" || newValue == "YES") && (stat == ";CyclesSinceSlugpup" || stat == ";REINFORCEDKARMA"))
         {
-            newValue = "100";
+            if (stat == ";REINFORCEDKARMA")
+            {
+                newValue = "1";
+            }
+            else
+            {
+                newValue = "100";
+            }
         }
 
         if (!character.Contains("Red") || stat != ";CYCLENUM")
@@ -552,8 +585,8 @@ class Program
     {
         string newValue;
         
-        PrintMessage("\nEnter the new value ", "ask", false);
-        PrintMessage("/!\\ make sure that it is a valid DEN Room, use the interactive map to get the name of the den you want /!\\ ", "error", false);
+        PrintMessage("\n/!\\ make sure that you enter a valid DEN Room, use an interactive map to get the name of the den you want /!\\ ", "error", true);
+        PrintMessage("Enter the new value ", "ask", false);
         PrintMessage("(enter C to cancel) : ", "ask", false);
         
         newValue = Console.ReadLine().ToUpper().Trim();
