@@ -48,7 +48,7 @@ class Program
         string selectedChoice;
         
         charsFoundDictionary.Clear();
-            
+        
         if (!hasPath)
         {
             Console.WriteLine("  _____            _____             ______    _ _ _             ");
@@ -60,11 +60,12 @@ class Program
             Console.WriteLine("                                                                 ");
             Console.Write("                                                                 ");
             PrintMessage("\n/!\\ Modded scugs are not fully supported yet /!\\", "error", true);
-            PrintMessage("/!\\ This project is still in development, even if the program create a backup itself, create one manually /!\\\n", "error", true);
+            PrintMessage("/!\\ This project is still in development, even if the program create a backup itself, create one manually /!\\", "error", true);
+            PrintMessage("/!\\ If you encounter a bug, please report it to me on discord : fnafgameur /!\\\n", "error", true);
             
             do
             {
-                PrintMessage("Provide path to your \"sav\" file e.g : \"C:/Users/Example/Desktop/sav\" OR \"./sav\" to select in the current directory of the editor\nOR \"find\" to search in the default save location", "ask", true);
+                PrintMessage("Provide path to your \"sav\" file e.g : \"C:/Users/Example/Desktop/sav\" OR \"./sav\" to select in the current directory of the editor OR \"find\" to search in the default save location", "ask", true);
                 Console.Write(">");
                 filePath = Console.ReadLine();
 
@@ -204,7 +205,12 @@ class Program
                     }
                 }
             }
-            EditIntValue(characterChoice, statsToFind, newValue);
+            var returnedMsg = EditIntValue(characterChoice, statsToFind, newValue);
+            
+            if (returnedMsg == "")
+            {
+                Main();
+            }
         }
         else
         {
@@ -309,7 +315,8 @@ class Program
             Console.WriteLine(chars.Key + " = " + charRenamed);
         }
         Console.WriteLine("\nR = Restart the program");
-        Console.Write("Q = Exit the program\n>");
+        Console.Write("Q = Exit the program\n");
+        Console.Write("\n>");
         
         characterChoiceStr = Console.ReadLine();
         characterChoiceStr = characterChoiceStr.ToUpper().Trim();
@@ -367,7 +374,7 @@ class Program
                       "\n9 = Karma CAP" +
                       "\n10 = Reinforce karma" +
                       "\n11 = Force pup to spawn this cycle" +
-                      "\nC = Cancel" +
+                      "\n\nC = Cancel\n" +
                       "\n>");
         statsToFind = Console.ReadLine().ToUpper().Trim();
         char.TryParse(statsToFind, out chosenValue);
@@ -546,6 +553,7 @@ class Program
                 break;
         }
         
+        
         if ((newValue == "N" || newValue == "NO") && (stat == ";CyclesSinceSlugpup" || stat == ";REINFORCEDKARMA"))
         {
             newValue = "0";
@@ -606,6 +614,7 @@ class Program
         string replaced;
         int start;
         int end;
+        int stopIndex;
         int index;
         character += "&lt;svA&gt;SEED&lt;svB&gt;";
         
@@ -616,8 +625,17 @@ class Program
             PrintMessage("\nValue Not Found !", "error", true);
             return "";
         }
-
-        end = fileContent.IndexOf(valueToFind, start, StringComparison.Ordinal) + valueToFind.Length;
+        
+        stopIndex = fileContent.IndexOf(";progDivA&gt;", start, StringComparison.Ordinal);
+        end = fileContent.IndexOf(valueToFind, start, StringComparison.Ordinal);
+        
+        if (end == -1 || end > stopIndex)
+        {
+            PrintMessage("\nValue Not Found !", "error", true);
+            return "";
+        }
+        
+        end += valueToFind.Length;
 
         numberStr = FindInt(end);
             
@@ -704,6 +722,7 @@ class Program
             File.Create(origFilePath).Dispose();
             File.WriteAllText(origFilePath, File.ReadAllText(filePath));
             PrintMessage("\nBackup save created in " + folderPath, "success", true);
+            Thread.Sleep(360);
         }
     }
     
