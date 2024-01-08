@@ -59,12 +59,12 @@ class Program
             Console.WriteLine(" |_|  \\_\\ \\_/\\_/ |_____/ \\__,_| \\_/ |______\\__,_|_|\\__\\___/|_|   ");
             Console.WriteLine("                                                                 ");
             Console.Write("                                                                 ");
-            PrintMessage("\n/!\\ Modded scugs are not supported yet /!\\", "error", true);
+            PrintMessage("\n/!\\ Modded scugs are not fully supported yet /!\\", "error", true);
             PrintMessage("/!\\ This project is still in development, even if the program create a backup itself, create one manually /!\\\n", "error", true);
             
             do
             {
-                PrintMessage("Provide path to your \"sav\" file e.g : \"C:/Users/Example/Desktop/sav\" OR \"./sav\" to select in the current directory\nOR \"find\" to search in the default location", "ask", true);
+                PrintMessage("Provide path to your \"sav\" file e.g : \"C:/Users/Example/Desktop/sav\" OR \"./sav\" to select in the current directory of the editor\nOR \"find\" to search in the default save location", "ask", true);
                 Console.Write(">");
                 filePath = Console.ReadLine();
 
@@ -74,17 +74,11 @@ class Program
                     continue;
                 }
                 
-                if (filePath == "d" || filePath == "debug")
-                {
-                    filePath = "C:\\Users\\Djimmy\\RiderProjects\\RwSavEditor\\RwSavEditor\\sav_all";
-                }
-                else if (filePath == "find")
+                if (filePath == "find")
                 {
                     //Get locallow folder 
-                    string folderFromUserProfile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "LocalLow");
+                    var folderFromUserProfile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "LocalLow");
                     filePath = folderFromUserProfile + "\\Videocult\\Rain World\\sav";
-                    
-                    Console.WriteLine("\nDefault location : " + filePath);
                 }
                 
                 if (filePath[0] == '.')
@@ -139,7 +133,6 @@ class Program
          * -Ajouter stats manquantes 🟢
          * -Ajouter Survivor & Hunter 🟢
          * -Ajouter DLC scugs (à tester) 🟢
-         * -Ajouter FORCEPUPS 🟢
          * ---Check if scug is in save 🟢
          * -Ajouter modded scugs ? 🟢
          * ---Ajout scugs name manuellement ?
