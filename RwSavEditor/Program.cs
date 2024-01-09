@@ -373,7 +373,7 @@ class Program
                       "\n8 = Karma level" +
                       "\n9 = Karma CAP" +
                       "\n10 = Reinforce karma" +
-                      "\n11 = Force pup to spawn this cycle" +
+                      "\n11 = Force pup to spawn this cycle (doesn't work if you already have a spup)" +
                       "\n\nC = Cancel\n" +
                       "\n>");
         statsToFind = Console.ReadLine().ToUpper().Trim();
