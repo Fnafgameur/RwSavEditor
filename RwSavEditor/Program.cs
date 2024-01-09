@@ -61,7 +61,7 @@ class Program
             Console.Write("                                                                 ");
             PrintMessage("\n/!\\ Modded scugs are not fully supported yet /!\\", "error", true);
             PrintMessage("/!\\ This project is still in development, even if the program create a backup itself, create one manually /!\\", "error", true);
-            PrintMessage("/!\\ If you encounter a bug, please report it to me on discord : fnafgameur /!\\\n", "error", true);
+            PrintMessage("/!\\ If you encounter a bug, please report it on the discord server : https://discord.gg/ejNwfEqsTn /!\\\n", "error", true);
             
             do
             {
