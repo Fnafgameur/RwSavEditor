@@ -21,3 +21,6 @@ If you want to change your spawn point, it is recommended to use the [Interactiv
 
 ## Bug report & suggestions
 If you find any problem in the program, or you just want to make a suggestion to improve the editor, contact me on Discord : fnafgameur
+
+# Supporting
+If you liked this project and you want to support me, you can do that [here](paypal.me/FnaRuta)
