@@ -41,6 +41,8 @@ class Program
     
     public static void Main()
     {
+        AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
+        
         string characterChoice;
         string statsToFind;
         string valueReturned;
@@ -772,5 +774,22 @@ class Program
         PrintMessage("\nThank you for using RwSavEditor !\nPress Enter to exit...", "info", false);
         Console.ReadLine();
         Environment.Exit(0);
+    }
+    static void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
+    {
+        Exception exception = (Exception)e.ExceptionObject;
+        
+        string logFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ErrorLog.txt");
+        
+        using (StreamWriter writer = new StreamWriter(logFilePath, true))
+        {
+            writer.WriteLine($"Date/Hour: {DateTime.Now}");
+            writer.WriteLine($"Error: {exception.Message}");
+            writer.WriteLine($"StackTrace: {exception.StackTrace}");
+            writer.WriteLine(new string('-', 40));
+        }
+        
+        PrintMessage("\nAn error occured !\nLogs have been saved in " + logFilePath + "\nPress Enter to exit...", "error", false);
+        Console.ReadLine();
     }
 }
