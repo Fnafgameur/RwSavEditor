@@ -25,4 +25,4 @@ If you want to change your spawn point, it is recommended to use the [Interactiv
 If you find any problem in the program, or you just want to make a suggestion to improve the editor, send them in the [Discord server](https://discord.gg/ejNwfEqsTn)
 
 ## Supporting
-If you liked this project and you want to support me, you can do that [here](paypal.me/FnaRuta)
+If you liked this project and you want to support me, you can do that [here](https://paypal.me/FnaRuta)
