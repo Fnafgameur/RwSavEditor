@@ -1,5 +1,5 @@
 # RwSavEditor
-This project is still under development, so you may encounter bugs when using it. Even if the program creates a backup of your recording, consider creating one manually.
+This project is still under development, so you may encounter bugs when using it. Even if the program creates a backup of your save, consider creating one manually.
 
 ## Presentation
 This save editor lets you to change stats of your campaigns, every vanilla slugcats are supported (this include DLC ones and Inv).  
