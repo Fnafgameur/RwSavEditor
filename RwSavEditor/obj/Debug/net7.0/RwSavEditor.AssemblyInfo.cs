@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RwSavEditor")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d7cbd8577d09b78a9dbcb2e2b2752fba94ddba3d")]
 [assembly: System.Reflection.AssemblyProductAttribute("RwSavEditor")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RwSavEditor")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

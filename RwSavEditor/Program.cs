@@ -1,5 +1,8 @@
 ﻿using System.Text;
 using System.Text.RegularExpressions;
+using RwSavEditor.managers;
+using RwSavEditor.utils;
+using RwSavEditor.utils.logs.logtypes;
 
 namespace RwSavEditor;
 
@@ -38,9 +41,14 @@ class Program
         "Pearlcat&lt;svA&gt;SEED&lt;svB&gt;",
         "WingCat&lt;svA&gt;SEED&lt;svB&gt;",
     };
+
+    private static SaveManager SaveManager;
     
     public static void Main()
     {
+        SaveManager = new SaveManager("sav");
+        SaveManager.LoadSave();
+        
         AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
         
         string characterChoice;
@@ -48,7 +56,7 @@ class Program
         string valueReturned;
         string newValue;
         string selectedChoice;
-        
+        return;
         charsFoundDictionary.Clear();
         
         if (!hasPath)
