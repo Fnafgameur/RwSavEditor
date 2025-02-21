@@ -1,7 +1,12 @@
+using RwSavEditor.utils.save;
+
 namespace RwSavEditor.objects;
 
 public class Slugcat
 {
+    public static readonly string SLUGCATS_NAME_STRING_PATTERN = 
+        SaveUtils.CreateStringPattern("[a-zA-Z]+&lt", SaveUtils.TAG_SV_REVERSED);
+    
     private readonly string name;
     private int food;
     private int maxFood;

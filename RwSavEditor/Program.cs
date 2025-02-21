@@ -56,6 +56,7 @@ class Program
         string valueReturned;
         string newValue;
         string selectedChoice;
+        
         return;
         charsFoundDictionary.Clear();
         

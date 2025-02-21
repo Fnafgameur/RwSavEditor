@@ -1,7 +1,15 @@
+using RwSavEditor.utils.save;
+
 namespace RwSavEditor.objects;
 
 public class Save
 {
+    public static readonly string SAVE_START_STRING_PATTERN =
+        SaveUtils.CreateStringPattern("SAVE STATE&lt", SaveUtils.TAG_PROGDIV);
+
+    public static readonly string ATTRIBUTES_NAME_STRING_PATTERN = 
+        SaveUtils.CreateStringPattern("[a-zA-Z]+&lt", SaveUtils.TAG_SV);
+    
     private int seed;
     private Slugcat slugcat;
     private int cyclesPassed;
